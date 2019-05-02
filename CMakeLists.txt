@@ -13,6 +13,7 @@ include(FixDebugLibraryLookup)
 
 include_directories(${VCPKG_INCLUDE_DIR})
 include_directories(src)
+include_directories(src/MagicConch)
 
 add_definitions(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
                 -D_WIN32_WINNT=0x0501
@@ -24,7 +25,7 @@ find_package(unofficial-iconv CONFIG REQUIRED)
 include(FixLinkConflict)
 
 file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
-set(LIB_NAME "com.example.demo")
+set(LIB_NAME "com.company.MagicConch")
 add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 
 target_link_libraries(${LIB_NAME} PRIVATE unofficial::iconv::libiconv unofficial::iconv::libcharset)

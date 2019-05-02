@@ -1,4 +1,5 @@
-#include "cqsdk/cqsdk.h"
+﻿#include "cqsdk/cqsdk.h"
+#include "MagicConch/MagicConch.h"
 
 namespace app = cq::app; // 插件本身的生命周期事件和管理
 namespace event = cq::event; // 用于注册 QQ 相关的事件处理函数
@@ -6,8 +7,10 @@ namespace api = cq::api; // 用于调用酷 Q 提供的接口
 namespace logging = cq::logging; // 用于日志
 namespace message = cq::message; // 提供封装了的 Message 等类
 
+MagicConch myConch;	//创建我们的海螺
+
 // 初始化 App Id
-CQ_INITIALIZE("com.example.demo");
+CQ_INITIALIZE("com.company.MagicConch");
 
 // 插件入口，在静态成员初始化之后，app::on_initialize 事件发生之前被执行，用于配置 SDK 和注册事件回调
 CQ_MAIN {
@@ -22,13 +25,13 @@ CQ_MAIN {
         logging::debug(u8"消息", u8"收到私聊消息：" + e.message + u8"，发送者：" + std::to_string(e.user_id));
 
         try {
-            api::send_private_msg(e.user_id, e.message); // echo 回去
-
-            api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
+			//api::send_private_msg(e.user_id, e.message); // echo 回去
+			myConch.processPrivateMessage(e);
+            //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
 
             // MessageSegment 类提供一些静态成员函数以快速构造消息段
-            cq::Message msg = cq::MessageSegment::contact(cq::MessageSegment::ContactType::GROUP, 201865589);
-            msg.send(e.target); // 使用 Message 类的 send 成员函数
+            //cq::Message msg = cq::MessageSegment::contact(cq::MessageSegment::ContactType::GROUP, 201865589);
+            //msg.send(e.target); // 使用 Message 类的 send 成员函数
         } catch (const cq::exception::ApiError &err) {
             // API 调用失败
             logging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
@@ -37,11 +40,25 @@ CQ_MAIN {
         e.block(); // 阻止事件继续传递给其它插件
     };
 
-    event::on_group_msg = [](const auto &e /* 使用 C++ 的 auto 关键字 */) {
-        const auto memlist = api::get_group_member_list(e.group_id); // 获取数据接口
-        cq::Message msg = u8"本群一共有 "; // string 到 Message 自动转换
-        msg += std::to_string(memlist.size()) + u8" 个成员"; // Message 类可以进行加法运算
-        message::send(e.target, msg); // 使用 message 命名空间的 send 函数
+    event::on_group_msg = [](const cq::GroupMessageEvent &e) {
+        try {
+
+			myConch.processGroupMessage(e);
+
+
+
+            //const auto memlist = api::get_group_member_list(e.group_id);
+            //cq::Message msg = e.message;
+            //msg += std::to_string(memlist.size()) + u8" 个成员";
+            //message::send(e.target, msg);
+        } catch (const cq::exception::ApiError &err) {
+            cq::logging::warning(
+                u8"MagicConch",
+                u8"发生std expetion: " + std::to_string(err.what()) + u8"\n发送消息为: " + e.raw_message);
+        } catch (...) {
+            logging::warning(u8"MagicConch", u8"发生无法捕捉的异常，发送消息为: " + e.raw_message);
+        }
+        e.block();	//阻止其他插件获取消息
     };
 }
 
