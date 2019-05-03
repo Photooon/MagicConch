@@ -16,7 +16,6 @@ public:
 	void processGroupMessage(const cq::GroupMessageEvent msg);
 private:
 	/*变量*/
-	int test;
 	bool isRepeater;
 	string newMessage;		//用于储存正准备处理的消息，当MC接收到新信息时就更新，处理完后置空
 	string lastMessage;		//用来储存上一条消息，当MC接收并处理完一条新消息后被更新
