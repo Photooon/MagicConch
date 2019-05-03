@@ -1,4 +1,5 @@
-﻿#include "cqsdk/cqsdk.h"
+﻿#pragma warning(disable:4996)
+#include "cqsdk/cqsdk.h"
 #include "MagicConch/MagicConch.h"
 
 namespace app = cq::app; // 插件本身的生命周期事件和管理
@@ -25,10 +26,11 @@ CQ_MAIN {
         logging::debug(u8"消息", u8"收到私聊消息：" + e.message + u8"，发送者：" + std::to_string(e.user_id));
 
         try {
-			//api::send_private_msg(e.user_id, e.message); // echo 回去
 			myConch.processPrivateMessage(e);
-            //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
 
+
+
+            //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
             // MessageSegment 类提供一些静态成员函数以快速构造消息段
             //cq::Message msg = cq::MessageSegment::contact(cq::MessageSegment::ContactType::GROUP, 201865589);
             //msg.send(e.target); // 使用 Message 类的 send 成员函数
