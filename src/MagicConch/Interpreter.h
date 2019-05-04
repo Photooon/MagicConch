@@ -20,15 +20,6 @@ public:
 	void interpretMore(string newMessage);				//用于补充参数
 	void flash();										//MagicConch处理完后调用次函数，将临时数据（参数列表等）清除
 
-	void test();										//测试使用，用完删除
-	int getState()
-	{
-		return state;
-	}
-	int getFuncNum()						
-	{
-		return funcCmdNum;
-	}
 	map<string, string> getParameters()			//参数接口
 	{
 		return parameters;
@@ -41,6 +32,7 @@ protected:
 	int funcClassNum;									//模糊匹配找到的功能的类代号
 	int funcCmdNum;										//模糊匹配找到的功能的指令号
 	map<string, string> parameters;						//存储依据功能从消息中提取出来的参数，按对存储参数
+	vector<string> lossParameters;						//缺失的参数列表
 	int state;											//-1:取消正在等待的功能；0:普通对话；1:完整调用功能；2:功能参数不齐全
 
 private:

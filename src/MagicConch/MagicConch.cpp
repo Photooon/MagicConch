@@ -3,41 +3,49 @@
 
 void MagicConch::processPrivateMessage(const cq::PrivateMessageEvent msg)
 {
+	newMessage = msg.message.extract_plain_text();			//将消息转为普通文本，更新newMessage
+	newTarget = msg.target;									//更新正在处理的消息对象
+
 	cq::api::send_private_msg(msg.user_id, msg.message);
-	return;
+
+	lastMessage = newMessage;								//处理完新消息后，更新lastMessage
+	lastPrivateTarget = newTarget;							//顶替掉最近处理的私聊对象
+	newMessage.clear();										//处理完这条消息后将其置空
 }
 
 void MagicConch::processGroupMessage(const cq::GroupMessageEvent msg)
 {
-	newMessage = msg.message.extract_plain_text();		//将消息转为普通文本，更新newMessage
-	GroupTarget = msg.target;							//更新最近的群组消息对象
+	newMessage = msg.message.extract_plain_text();			//将消息转为普通文本，更新newMessage
+	newTarget = msg.target;									//更新正在处理的消息对象
 
 	if (!processCommand())								//当传入消息不是命令时
 	{
-		if (myInterpreter.getState() == 2)				//当上一次参数不足时，将消息转给interpreteMore
+		if (myInterpreter.state == 2)				//当上一次参数不足时，将消息转给interpreteMore
 		{
-			myInterpreter.interpretMore(newMessage);	
+			myInterpreter.interpretMore(newMessage);
 		}
 		else											//否则看做一次新的对话开始
 		{
 			myInterpreter.interpret(newMessage);
 		}
 
-		if (myInterpreter.getState() == 1)
+		if (myInterpreter.state == 1)
 		{
 			callFunction();
 			myInterpreter.flash();						//完成一次功能的使用，将临时数据清空 
 		}
-		else if (myInterpreter.getState() == -1)		//取消指令
+		else if (myInterpreter.state == -1)		//取消指令
 		{
 			myInterpreter.flash();
 		}
-		else if(myInterpreter.getState() == 2)
+		else if(myInterpreter.state == 2)
 		{
 			askMoreInfo();							//参数不足，询问
 		}
 
 		/*测试功能区*/
+		printState(myToDo.text);
+
 		/*
 		if (isRepeater)		//复读功能
 		{
@@ -46,8 +54,9 @@ void MagicConch::processGroupMessage(const cq::GroupMessageEvent msg)
 		*/
 	}
 
-	lastMessage = newMessage;	//处理完新消息后，更新lastMessage
-	newMessage.clear();		//处理完这条消息后将其置空
+	lastMessage = newMessage;								//处理完新消息后，更新lastMessage
+	lastGroupTarget = newTarget;							//顶替掉最近处理的群聊对象
+	newMessage.clear();										//处理完这条消息后将其置空
 }
 
 void MagicConch::callFunction()
@@ -55,11 +64,12 @@ void MagicConch::callFunction()
 	switch (myInterpreter.funcClassNum)
 	{
 	case TODO:
+		//注入参数!!!
+		myToDo.text = myInterpreter.parameters.find("Thing")->second;
 		switch (myInterpreter.funcCmdNum)
 		{
 		case TODO_ADD:
-			myToDo.add();
-			printState(myToDo.test());
+			//调用功能!!!
 			break;
 		default:
 			break;
@@ -73,6 +83,13 @@ void MagicConch::callFunction()
 void MagicConch::askMoreInfo()
 {
 	//根据interpreter的参数列表和功能需求构造询问消息
+	cq::Message fmsg = std::to_string(string("我还有下面几个小小的要求就能帮你了哟: )\n"));
+	for (auto iter = myInterpreter.lossParameters.begin(); iter != myInterpreter.lossParameters.end(); iter++)
+	{
+		fmsg += *iter + "?";
+		fmsg += std::to_string(string("   "));
+	}
+	cq::message::send(newTarget, fmsg);
 }
 
 bool MagicConch::processCommand()
@@ -104,16 +121,14 @@ void MagicConch::printState(const string more)
 	fmsg += std::to_string(lastMessage);
 	fmsg += std::to_string(string("\nnewMessage："));
 	fmsg += std::to_string(newMessage);
-	fmsg += std::to_string(string("\nfuncNum："));
-	fmsg += std::to_string(myInterpreter.getFuncNum());
 	fmsg += std::to_string(string("\nMore Information："));
 	cq::Message moreMsg = std::to_string(more);
 	fmsg += moreMsg;
-	cq::message::send(GroupTarget, fmsg);
+	cq::message::send(newTarget, fmsg);
 }
 
 void MagicConch::repeate()
 {
 	cq::Message fmsg = newMessage;
-	cq::message::send(GroupTarget, fmsg);
+	cq::message::send(newTarget, fmsg);
 }

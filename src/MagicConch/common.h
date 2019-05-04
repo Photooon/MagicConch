@@ -18,3 +18,4 @@ struct FuncCmdElem
 
 class MagicConch;
 class Interpreter;
+class ToDo;
