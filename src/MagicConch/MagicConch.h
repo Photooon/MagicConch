@@ -1,28 +1,34 @@
 ﻿#pragma once
 #include "cqsdk/cqsdk.h"
-#include ".\MagicConch\Interpreter.h"
+#include "Interpreter.h"
 #include "common.h"
 #include "ToDo.h"
 #include "File.h"
+#include "MTime.h"
 
 using namespace std;
 
 class MagicConch
 {
 public:
-	MagicConch()			//测试使用的构造函数
+	MagicConch()
 	{
+		myFile.load(myInterpreter, myToDo);
+
+
+
+		/*
 		isRepeater = true;
 		vector<string> para1;
 		para1.push_back("Time");		//添加一个提醒事项需要有事项的时间和具体内容
 		para1.push_back("Thing");
 		FuncCmdElem elem1 = { "ToDo Add",TODO,TODO_ADD,para1 };
-		allKeyToFunc.insert(pair<string, FuncCmdElem>(elem1.funcName, elem1));
-		allKeyToFunc.insert(pair<string, FuncCmdElem>(std::to_string(TODO)+ std::to_string(TODO_ADD), elem1));
+		myInterpreter.allKeyToFunc.insert(pair<string, FuncCmdElem>(elem1.funcName, elem1));
+		myInterpreter.allKeyToFunc.insert(pair<string, FuncCmdElem>(std::to_string(TODO)+ std::to_string(TODO_ADD), elem1));
 		//考虑搜索方便，甚至功能代号+指令代号也能检索到功能
-		keySet.insert(elem1.funcName);
-		myInterpreter.allKeyToFunc = allKeyToFunc;
-		myInterpreter.keySet = keySet;
+		myInterpreter.keySet.insert(elem1.funcName);
+		*/
+		
 	}
 
 	/*处理事件函数*/
@@ -36,16 +42,16 @@ private:
 	cq::Target lastPrivateTarget;						//上一个私聊对象
 	cq::Target lastGroupTarget;							//上一个群消息对象
 	cq::Target newTarget;								//正在联系的Target
-	map<string, FuncCmdElem> allKeyToFunc;				//保存所有的功能关键词-功能结构对
-	set<string> keySet;									//保存所有的key
 
 	Interpreter myInterpreter;
 	ToDo myToDo;
+	File myFile;
 
 	/*私有函数*/
 	bool processCommand();								//检测消息是否为指令，若是，则执行指令（返回false表示是普通消息）
 	void askMoreInfo();									//发出要求更多信息的消息
 	void callFunction();								//负责起调功能
+	void print(string content);							//输出传入的string，用于打印ToDo等
 
 	/*测试使用代码开始*/
 	//测试变量

@@ -1,8 +1,4 @@
 ﻿#pragma once
-#include <set>
-#include <map>
-#include <vector>
-#include <string>
 #include "common.h"
 
 using namespace std;
@@ -19,11 +15,6 @@ public:
 	void interpret(string newMessage);					//供MagicConch调用的接口
 	void interpretMore(string newMessage);				//用于补充参数
 	void flash();										//MagicConch处理完后调用次函数，将临时数据（参数列表等）清除
-
-	map<string, string> getParameters()			//参数接口
-	{
-		return parameters;
-	}
 
 	friend MagicConch;
 

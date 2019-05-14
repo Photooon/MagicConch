@@ -27,6 +27,7 @@ void Interpreter::interpret(string newMessage)
 
 void Interpreter::interpretMore(string newMessage)
 {
+	//!!!
 	return;
 }
 
@@ -42,15 +43,16 @@ void Interpreter::flash()
 
 bool Interpreter::approximateMatch()
 {
-	/*以下为假识别，用于测试，待完成*/
+	/*以下为假识别，用于测试，待完成!!!*/
 	funcClassNum = TODO;
-	funcCmdNum = TODO_ADD;
+	funcCmdNum = TODO_GET;
 	return true;
 }
 
 void Interpreter::extractPara()
 {
-	/*下为测试代码，待完成*/
+	/*下为测试代码，待完成!!!*/
+	return;
 	parameters["Time"] = "Today";
 	parameters["Thing"] = "Finish my Homework";
 }
@@ -58,6 +60,8 @@ void Interpreter::extractPara()
 bool Interpreter::isEnoughPara()
 {
 	bool flag = true;
+	//测试!!!，此处由于迭代器会溢出等问题，需要重新设计异常情况
+	return true;
 	try
 	{
 		string num = std::to_string(funcClassNum) + std::to_string(funcCmdNum);
