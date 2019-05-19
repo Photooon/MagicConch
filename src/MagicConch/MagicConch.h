@@ -5,6 +5,7 @@
 #include "ToDo.h"
 #include "File.h"
 #include "MTime.h"
+#include "User.h"
 
 using namespace std;
 
@@ -13,57 +14,58 @@ class MagicConch
 public:
 	MagicConch()
 	{
-		myFile.load(myInterpreter, myToDo);
+		file.load(userList, interpreter);
+	}
 
-
-
-		/*
-		isRepeater = true;
-		vector<string> para1;
-		para1.push_back("Time");		//添加一个提醒事项需要有事项的时间和具体内容
-		para1.push_back("Thing");
-		FuncCmdElem elem1 = { "ToDo Add",TODO,TODO_ADD,para1 };
-		myInterpreter.allKeyToFunc.insert(pair<string, FuncCmdElem>(elem1.funcName, elem1));
-		myInterpreter.allKeyToFunc.insert(pair<string, FuncCmdElem>(std::to_string(TODO)+ std::to_string(TODO_ADD), elem1));
-		//考虑搜索方便，甚至功能代号+指令代号也能检索到功能
-		myInterpreter.keySet.insert(elem1.funcName);
-		*/
-		
+	~MagicConch()
+	{
+		file.save(userList);
+		print(file.testS);
 	}
 
 	/*处理事件函数*/
-	void processPrivateMessage(const cq::PrivateMessageEvent msg);
-	void processGroupMessage(const cq::GroupMessageEvent msg);
+	void pMessage();													//在pPMessage和pGMessage中被调用，用于处理消息
+	void InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg);		//是cq::event和MagicConch的接口
+	void InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg);			//是cq::event和MagicConch的接口
 
 private:
 	/*私有变量*/
-	string newMessage;									//用于储存正准备处理的消息，当MC接收到新信息时就更新，处理完后置空
+	string message;										//用于储存正准备处理的消息，当MC接收到新信息时就更新，处理完后置空
 	string lastMessage;									//用来储存上一条消息，当MC接收并处理完一条新消息后被更新
-	cq::Target lastPrivateTarget;						//上一个私聊对象
-	cq::Target lastGroupTarget;							//上一个群消息对象
-	cq::Target newTarget;								//正在联系的Target
 
-	Interpreter myInterpreter;
-	ToDo myToDo;
-	File myFile;
+	int64_t userId;										//消息的发送者的QQ号码（不区分私聊和群）
+	User *u;											//正在处理的User类对象
+	cq::Target target;									//正在联系的Target
+	cq::Target lastPrivateTarget;						//上一个(私聊)对象
+	cq::Target lastGroupTarget;							//上一个(群)对象
+	
+	map<int64_t, User> userList;						//user_id到User的对应
+
+	Interpreter interpreter;
+	File file;
 
 	/*私有函数*/
-	bool processCommand();								//检测消息是否为指令，若是，则执行指令（返回false表示是普通消息）
-	void askMoreInfo();									//发出要求更多信息的消息
+	bool isCommand();									//判断消息是否是一条指令
+	void pCommand();									//根据指令执行要求
+
+	User* bookUser(const int64_t id);					//登记一个未有记录的User
+
 	void callFunction();								//负责起调功能
-	void print(string content);							//输出传入的string，用于打印ToDo等
+	void askMoreInfo();									//根据u中的丢失参数清单发出要求更多信息的消息
+	void chat();										//根据message和聊天库聊天...
+	void print(string content);							//发送传入的content给最近一个target
+	void repeate();										//复读功能
+
+
 
 	/*测试使用代码开始*/
 	//测试变量
 	bool isRepeater;
 
 	//测试常量
-	const string cmdOpenRepeater = "开始复读";			//暂时写成单常量形式，以后修改为从文本文件读入并以字典存储!!!
-	const string cmdCloseRepeater = "关闭复读";			//同上
 
 	//测试函数
 	void printState(const string more = "");			//测试使用，输出类的基本信息
-	void repeate();										//复读功能
 
 	/*测试使用代码结束*/
 };

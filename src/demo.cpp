@@ -26,9 +26,7 @@ CQ_MAIN {
         logging::debug(u8"消息", u8"收到私聊消息：" + e.message + u8"，发送者：" + std::to_string(e.user_id));
 
         try {
-			myConch.processPrivateMessage(e);
-
-
+			myConch.InterfaceOfPrivateMsg(e);
 
             //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
             // MessageSegment 类提供一些静态成员函数以快速构造消息段
@@ -45,9 +43,7 @@ CQ_MAIN {
     event::on_group_msg = [](const cq::GroupMessageEvent &e) {
         try {
 
-			myConch.processGroupMessage(e);
-
-
+			myConch.InterfaceOfGroupMsg(e);
 
             //const auto memlist = api::get_group_member_list(e.group_id);
             //cq::Message msg = e.message;
