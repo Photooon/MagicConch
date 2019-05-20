@@ -1,80 +1,140 @@
 ﻿#include "MagicConch.h"
-#include <string.h>
 
-void MagicConch::processPrivateMessage(const cq::PrivateMessageEvent msg)
+void MagicConch::pMessage()
 {
-	newMessage = msg.message.extract_plain_text();			//将消息转为普通文本，更新newMessage
-	newTarget = msg.target;									//更新正在处理的消息对象
-
-	cq::api::send_private_msg(msg.user_id, msg.message);
-
-	lastMessage = newMessage;								//处理完新消息后，更新lastMessage
-	lastPrivateTarget = newTarget;							//顶替掉最近处理的私聊对象
-	newMessage.clear();										//处理完这条消息后将其置空
-}
-
-void MagicConch::processGroupMessage(const cq::GroupMessageEvent msg)
-{
-	newMessage = msg.message.extract_plain_text();			//将消息转为普通文本，更新newMessage
-	newTarget = msg.target;									//更新正在处理的消息对象
-
-	if (!processCommand())								//当传入消息不是命令时
+	/*指令处理区*/
+	if (isCommand())
 	{
-		if (myInterpreter.state == 2)				//当上一次参数不足时，将消息转给interpreteMore
-		{
-			myInterpreter.interpretMore(newMessage);
-		}
-		else											//否则看做一次新的对话开始
-		{
-			myInterpreter.interpret(newMessage);
-		}
+		pCommand();
+	}
+	else
+	{
+		/*功能处理区*/
 
-		if (myInterpreter.state == 1)
+		/*处理User不存在的情况*/
+		if (!userList.count(userId))		//在用户不存在记录时，先进行登记（不然没有位置存放状态和其他内容）
 		{
+			print("欢迎使用神奇海螺━(*｀∀´*)ノ亻!");
+			u = bookUser(userId);		//登记完之后顺便让u指向这个正在处理的对象
+		}
+		else
+		{
+			u = &userList[userId];
+		}
+		/*把User和消息绑定起来处理*/
+		interpreter.interpret(message, *u);
+		
+
+		switch (u->state)
+		{
+		case -1:							//取消之前的功能指令要求
+			u->clearRequirement();
+			break;
+		case 1:								//调用功能指令
 			callFunction();
-			myInterpreter.flash();						//完成一次功能的使用，将临时数据清空 
-		}
-		else if (myInterpreter.state == -1)		//取消指令
-		{
-			myInterpreter.flash();
-		}
-		else if(myInterpreter.state == 2)
-		{
-			askMoreInfo();							//参数不足，询问
+			u->clearRequirement();
+			break;
+		case 2:								//参数不足，询问更多参数
+			askMoreInfo();
+			break;
+		default:
+			chat();
 		}
 
-		/*测试功能区*/
-		printState(myToDo.text);
-
-		/*
-		if (isRepeater)		//复读功能
-		{
-			repeate();
-		}
-		*/
+		u->lastMessage = message;
 	}
 
-	lastMessage = newMessage;								//处理完新消息后，更新lastMessage
-	lastGroupTarget = newTarget;							//顶替掉最近处理的群聊对象
-	newMessage.clear();										//处理完这条消息后将其置空
+	/*常功能调用区*/
+	if (u->isRepeater)			//复读功能
+	{
+		repeate();				//因为这时的message仍然和user里面的lastMessage一样，所以不去特地repeat User里面的message了
+	}
+}
+
+void MagicConch::InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg)
+{
+	/*更新内容*/
+	lastMessage = message;
+	lastPrivateTarget = target;
+
+	message = msg.message.extract_plain_text();
+	target = msg.target;
+	userId = msg.user_id;
+	
+	/*处理消息*/
+	pMessage();
+}
+
+void MagicConch::InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg)
+{
+	/*更新内容*/
+	lastMessage = message;
+	lastGroupTarget = target;
+
+	message = msg.message.extract_plain_text();
+	target = msg.target;
+	userId = msg.user_id;
+
+	/*处理消息*/
+	pMessage();
+
+	/*群聊特殊功能区*/
+	//钓鱼（消息）功能
+}
+
+User* MagicConch::bookUser(const int64_t id)
+{
+	User nUser(id, PATH);
+	userList[id] = nUser;
+	return &userList[id];
 }
 
 void MagicConch::callFunction()
 {
-	switch (myInterpreter.funcClassNum)
+	/*权宜之计，以后用map和函数指针实现高效的检索...*/
+	//print(to_string(u->funcClassNum) + to_string(u->funcCmdNum));
+	switch (u->funcClassNum)
 	{
+	case NULL:
+		switch (u->funcCmdNum)
+		{
+		case NULL:
+			u->clearRequirement();
+			print(to_string(u->isRepeater));
+		default:
+			break;
+		}
 	case TODO:
-		//注入参数!!!
-		myToDo.text = myInterpreter.parameters.find("Thing")->second;
-		switch (myInterpreter.funcCmdNum)
+		switch (u->funcCmdNum)
 		{
 		case TODO_ADD:
-			//调用功能!!!
+			u->todo.add(MTime::to_MTime(u->foundParas["Time"]), u->foundParas["Thing"]);
+			break;
+		case TODO_GET:
+			print(u->todo.getList(u->showTodoEndTime));
+			break;
+		case TODO_DEL:
+			if (!(u->todo.del(u->foundParas["Line"])))
+			{
+				print("给的行数不对，不帮你改呢o(´^｀)o");
+			}
 			break;
 		default:
 			break;
 		}
 		break;
+	case REPEATER:
+		switch (u->funcCmdNum)
+		{
+		case REPEATER_START:
+			u->isRepeater = true;
+			break;
+		case REPEATER_STOP:
+			u->isRepeater = false;
+			break;
+		default:
+			break;
+		}
 	default:
 		break;
 	}
@@ -83,33 +143,54 @@ void MagicConch::callFunction()
 void MagicConch::askMoreInfo()
 {
 	//根据interpreter的参数列表和功能需求构造询问消息
-	cq::Message fmsg = std::to_string(string("我还有下面几个小小的要求就能帮你了哟: )\n"));
-	for (auto iter = myInterpreter.lossParameters.begin(); iter != myInterpreter.lossParameters.end(); iter++)
+	cq::Message fmsg = std::to_string(string("我还有需要知道下面几件事就能帮你了呢(￣▽￣)~*\n"));
+	for (vector<string>::iterator iter = u->lossParas.begin(); iter != u->lossParas.end(); iter++)
 	{
-		fmsg += *iter + "?";
-		fmsg += std::to_string(string("   "));
+		if (iter != u->lossParas.begin())
+		{
+			fmsg += "和";
+		}
+		fmsg += *iter;
+		
 	}
-	cq::message::send(newTarget, fmsg);
+	cq::message::send(target, fmsg);
 }
 
-bool MagicConch::processCommand()
+bool MagicConch::isCommand()
 {
-	bool flag = false;		//考虑到未来会有复合指令，所以用flag而不是直接return
+	if (message.find("#cmd:") == string::npos)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
 
-	if (newMessage == cmdOpenRepeater)
+void MagicConch::pCommand()
+{
+	int pos = message.find("#cmd:");
+	string temp;
+	pos += 5;
+	for (; pos < message.length() && message[pos] != '\n'; pos++)
+	{
+		temp.push_back(message[pos]);
+	}
+	if (temp == "开始复读")
 	{
 		isRepeater = true;
-		printState();
-		flag = true;
 	}
-	else if (newMessage == cmdCloseRepeater)
+	else if(temp == "停止复读")
 	{
 		isRepeater = false;
-		printState();
-		flag = true;
 	}
+}
 
-	return flag;
+void MagicConch::print(string content)
+{
+	cq::Message fmsg = content;
+	cq::message::send(target, fmsg);
 }
 
 void MagicConch::printState(const string more)
@@ -120,15 +201,20 @@ void MagicConch::printState(const string more)
 	fmsg += std::to_string(string("\nlastMessage："));
 	fmsg += std::to_string(lastMessage);
 	fmsg += std::to_string(string("\nnewMessage："));
-	fmsg += std::to_string(newMessage);
+	fmsg += std::to_string(message);
 	fmsg += std::to_string(string("\nMore Information："));
 	cq::Message moreMsg = std::to_string(more);
+	fmsg += "\n";
 	fmsg += moreMsg;
-	cq::message::send(newTarget, fmsg);
+	cq::message::send(target, fmsg);
+}
+
+void MagicConch::chat()
+{
+	
 }
 
 void MagicConch::repeate()
 {
-	cq::Message fmsg = newMessage;
-	cq::message::send(newTarget, fmsg);
+	print(message);
 }

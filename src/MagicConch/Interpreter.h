@@ -1,45 +1,35 @@
 ﻿#pragma once
-#include <set>
-#include <map>
-#include <vector>
-#include <string>
 #include "common.h"
+#include "User.h"
 
 using namespace std;
 
 class Interpreter
 {
 public:
-	Interpreter()
-	{
-		state = 0;										//0表示空状态
-		funcClassNum = 0;
-		funcCmdNum = 0;
-	}
-	void interpret(string newMessage);					//供MagicConch调用的接口
-	void interpretMore(string newMessage);				//用于补充参数
-	void flash();										//MagicConch处理完后调用次函数，将临时数据（参数列表等）清除
+	Interpreter(){}
 
-	map<string, string> getParameters()			//参数接口
-	{
-		return parameters;
-	}
+	void add(vector<string> &keySet, FuncCmdElem &elem);		//用于初始化时建立allKeyToFunc
+	void renewKeySet(vector<string> &nKey);						//将传入key的列表塞入keySet后面
+	void interpret(string &newMessage, User &u);				//根据user的状态来理解这句话
+	
+	string getKeyToFunc();										//将allKeyToFunc转化为string语句，作为help
 
 	friend MagicConch;
 
 protected:
-	string message;										//正在处理的消息
-	int funcClassNum;									//模糊匹配找到的功能的类代号
-	int funcCmdNum;										//模糊匹配找到的功能的指令号
-	map<string, string> parameters;						//存储依据功能从消息中提取出来的参数，按对存储参数
-	vector<string> lossParameters;						//缺失的参数列表
-	int state;											//-1:取消正在等待的功能；0:普通对话；1:完整调用功能；2:功能参数不齐全
+	string message;												//正在处理的消息
+	User *u;													//正在处理的User
 
 private:
-	map<string, FuncCmdElem> allKeyToFunc;				//保存所有的功能关键词-功能结构对
-	set<string> keySet;									//保存所有的key
+	map<string, FuncCmdElem> allKeyToFunc;						//保存所有的功能关键词-功能结构对
+	vector<string> keySet;										//保存所有的key
 
-	bool approximateMatch();
-	void extractPara();	
-	bool isEnoughPara();
+	int test;
+	string testString;
+
+	bool match();
+	bool extractPara();											//从整个消息中提取所有必要参数
+	bool extractMorePara();										//从消息中提取缺失参数
+	string extractThePara(string paraName);				//从message中提取指定参数并返回
 };
