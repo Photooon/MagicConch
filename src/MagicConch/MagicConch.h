@@ -6,6 +6,7 @@
 #include "File.h"
 #include "MTime.h"
 #include "User.h"
+#include "WordManager.h"
 
 using namespace std;
 
@@ -20,11 +21,14 @@ public:
 	~MagicConch()
 	{
 		file.save(userList);
-		print(file.testS);
+		for each (auto iter in userList)
+		{
+			delete iter.second;
+		}
 	}
 
 	/*处理事件函数*/
-	void pMessage();													//在pPMessage和pGMessage中被调用，用于处理消息
+	void pMessage(bool isPrivateMsg = true);							//在pPMessage和pGMessage中被调用，用于处理消息
 	void InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg);		//是cq::event和MagicConch的接口
 	void InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg);			//是cq::event和MagicConch的接口
 
@@ -39,13 +43,14 @@ private:
 	cq::Target lastPrivateTarget;						//上一个(私聊)对象
 	cq::Target lastGroupTarget;							//上一个(群)对象
 	
-	map<int64_t, User> userList;						//user_id到User的对应
+	map<int64_t, User*> userList;						//user_id到User的对应
 
 	Interpreter interpreter;
 	File file;
 
 	/*私有函数*/
 	bool isCommand();									//判断消息是否是一条指令
+	bool havePrivilege();								//判断是否有
 	void pCommand();									//根据指令执行要求
 
 	User* bookUser(const int64_t id);					//登记一个未有记录的User
@@ -53,10 +58,9 @@ private:
 	void callFunction();								//负责起调功能
 	void askMoreInfo();									//根据u中的丢失参数清单发出要求更多信息的消息
 	void chat();										//根据message和聊天库聊天...
+	void print(int64_t id, string content);				//指定qq号发送消息
 	void print(string content);							//发送传入的content给最近一个target
 	void repeate();										//复读功能
-
-
 
 	/*测试使用代码开始*/
 	//测试变量

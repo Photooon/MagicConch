@@ -44,7 +44,7 @@ CQ_MAIN {
         try {
 
 			myConch.InterfaceOfGroupMsg(e);
-
+			
             //const auto memlist = api::get_group_member_list(e.group_id);
             //cq::Message msg = e.message;
             //msg += std::to_string(memlist.size()) + u8" 个成员";

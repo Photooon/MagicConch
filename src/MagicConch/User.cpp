@@ -3,8 +3,51 @@
 void User::clearRequirement()
 {
 	state = 0;
-	funcClassNum = 0;
 	funcCmdNum = 0;
 	foundParas.clear();
 	lossParas.clear();
+}
+
+void User::addExpection(const int64_t &group_id, const string &s)
+{
+	expection[group_id].push_back(s);			//如果expection原来没有这个群对象，会产生一个新的
+}
+
+void User::deleteExpection(const int64_t &groupId, const string &s)
+{
+	if (expection.count(groupId))
+	{
+		for (vector<string>::iterator iter = (expection[groupId]).begin(); iter != (expection[groupId]).end();)
+		{
+			if (*iter == s)
+			{
+				iter = (expection[groupId]).erase(iter);
+			}
+			else
+			{
+				iter++;
+			}
+		}
+	}
+}
+
+string User::getExpection()
+{
+	string temp;
+	for (auto iter = expection.begin(); iter != expection.end(); iter++)
+	{
+		for (auto it = iter->second.begin(); it != iter->second.end(); it++)
+		{
+			temp += "Group_id: ";
+			temp += to_string(iter->first);
+			temp += "   Content: ";
+			temp += *it;
+			temp += "\n";
+		}
+	}
+	if (!temp.empty())
+	{
+		temp.pop_back();		//删掉多出来的一个换行符
+	}
+	return temp;
 }

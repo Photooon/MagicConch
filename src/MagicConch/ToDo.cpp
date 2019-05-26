@@ -10,28 +10,49 @@ bool ToDo::add(MTime time, string &thing)
 	return true;
 }
 
-bool ToDo::del(string line)
+bool ToDo::del(const int &line)
 {
-	if (line == "")
+	if (line > 0 && line < ToDoList.size())
 	{
-		return false;
+		vector<ToDoElem>::iterator iter = ToDoList.begin();
+		iter += (line - 1);
+		ToDoList.erase(iter);
+		return true;
 	}
 	else
 	{
-		int pos = stoi(line);
-		if (pos > ToDoList.size())
-		{
-			return false;
-		}
-		else
-		{
-			vector<ToDoElem>::iterator iter = ToDoList.begin();
-			iter += (pos - 1);
-			ToDoList.erase(iter);
-			return true;
-		}
+		return false;
 	}
-	
+}
+
+bool ToDo::changeContent(const int &line,const string &content)
+{
+	if (line > 0 && line < ToDoList.size())
+	{
+		vector<ToDoElem>::iterator iter = ToDoList.begin();
+		iter += (line - 1);		//line是从1开始的
+		iter->thing = content;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool ToDo::changeEndTime(const int &line, const MTime &t)
+{
+	if (line > 0 && line < ToDoList.size())
+	{
+		vector<ToDoElem>::iterator iter = ToDoList.begin();
+		iter += (line - 1);		//line是从1开始的
+		iter->time = t;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 string ToDo::getList(bool showEndTime)
