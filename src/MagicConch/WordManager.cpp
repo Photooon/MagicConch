@@ -1,15 +1,27 @@
 ﻿#include "WordManager.h"
-#include "Dependencies/json.h"
-#include "Dependencies/CUtil.h"
-#include <iostream>
-#include <string>
-#include <windows.h>
-#include <winhttp.h>
-#include <vector>
 
 #pragma comment(lib,"winhttp.lib")
 #pragma comment(lib,"user32.lib")
 using namespace std;
+
+string WStringToString(const std::wstring &wstr)
+{
+	string str;
+	int nLen = (int)wstr.length();
+	str.resize(nLen, ' ');
+	int nResult = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)wstr.c_str(), nLen, (LPSTR)str.c_str(), nLen, NULL, NULL);
+	if (nResult == 0)
+	{
+		return "";
+	}
+	return str;
+}
+
+void WordManager::add(const string &w, const string &meaning, string &st, const int &stage)
+{
+	Word word = { w,meaning, MTime::to_MTime(st),stage };
+	list.push_back(word);
+}
 
 WordManager::WordManager()
 {
@@ -21,7 +33,7 @@ string WordManager::searchword(string word)
 	CUtil c;
 	wstring wsword = L"translate?&doctype=json&type=AUTO&i=" + c.StringToWString( word);
 	LPCWSTR pwszVerb = wsword.c_str();
-	string restr="";
+	string restr;
 
 	DWORD dwSize = 0;
 	DWORD dwDownloaded = 0;
@@ -54,7 +66,7 @@ string WordManager::searchword(string word)
 			dwSize = 0;
 			if (!WinHttpQueryDataAvailable(hRequest, &dwSize))
 			{
-				cout << "Error" << GetLastError() << " in WinHttpQueryDataAvailable.\n";
+				//cout << "Error" << GetLastError() << " in WinHttpQueryDataAvailable.\n";
 				break;
 			}
 			if (!dwSize)
@@ -64,7 +76,7 @@ string WordManager::searchword(string word)
 
 			if (!pszOutBuffer)
 			{
-				cout << "Out of memory\n";
+				//cout << "Out of memory\n";
 				break;
 			}
 
@@ -72,7 +84,7 @@ string WordManager::searchword(string word)
 
 			if (!WinHttpReadData(hRequest, (LPVOID)pszOutBuffer, dwSize, &dwDownloaded))
 			{
-				cout << "Error" << GetLastError() << "in WinHttpReadData.\n";
+				//cout << "Error" << GetLastError() << "in WinHttpReadData.\n";
 			}
 			else
 			{
@@ -85,11 +97,11 @@ string WordManager::searchword(string word)
 					//cout << root["type"].asString()<<endl;
 					const Json::Value arrayObj = root["translateResult"][0][0];
 					wstring out = c.UTF8ToUnicode(arrayObj["tgt"].asString());
-					restr = "翻译结果："+c.UnicodeToANSI(out);
+					restr = c.UnicodeToUTF8(out);
 					//cout << "翻译结果：";
 					//wcout.imbue(locale("chs"));
 					//wcout << out << endl;
-								
+				
 				}
 
 			}
@@ -102,70 +114,69 @@ string WordManager::searchword(string word)
 		} while (dwSize > 0);
 	}
 
+
 	return restr;
 }
 
-void WordManager::saveword(MTime time, string word, int stage=0)
+void WordManager::saveword(MTime time, string word, string meaning, int stage)
 {
-	Word newword = { word,time,stage };
+	Word newword = { word,meaning ,time,stage };
 	list.push_back(newword);
-	//string restr = word+"已保存";
-	//return restr;
 }
 
-vector<Word> * WordManager::returnword(int num)
+string WordManager::returnword(int num)
 {
-	int t = 0, s3 = 0, s2 = 0, s1 = 0, s0 = 0;
-	vector<Word> *p = new vector<Word>;
-	for (vector<Word>::iterator iter = list.begin(); iter != list.end(); iter++)
+	string temp;
+	int count = 0;
+
+	for (auto w = list.begin(); w != list.end(); w++)
 	{
-		while (iter->stage==3)
+		if (count< num)
 		{
-			p->push_back(*iter); 
-			s3++;
-			if (s3 >= num)break;
-			else 
+			if (w != list.begin())
 			{
-				while (iter->stage == 2)
-				{
-					p->push_back(*iter);
-					s2++;
-					if (s3 + s2 >= num)break;
-					else
-					{
-						while (iter->stage == 1)
-						{
-							p->push_back(*iter);
-							s1++;
-							if (s3 + s2 + s1 >= num)break;
-							else
-							{
-								while (iter->stage == 0)
-								{
-									p->push_back(*iter);
-									s0++;
-									if (s3 + s2 + s1 + s0 >= num)break;
-								}
-							}
-							break;
-						}
-					}
-					break;
-				}
+				temp += "\n";
 			}
+			temp += w->word;
+			temp += ": ";
+			temp += w->meaning;
+			w->stage++;
+		}
+		else
+		{
 			break;
 		}
 	}
-	return p;
+
+	return temp;
+}
+
+void WordManager::sortList()
+{
+	sort(list.begin(), list.end(), WordManager::sortFunc);
+}
+
+bool WordManager::sortFunc(Word &w1, Word &w2)
+{
+	return w1.stage > w1.stage;
 }
 
 void WordManager::update()
 {
-	for (vector<Word>::iterator iter = list.begin(); iter != list.end(); iter++)
+	for (vector<Word>::iterator iter = list.begin(); iter != list.end();)
 	{
-		if (iter->stage > 3)
-			list.erase(iter);
+		if (iter->stage > MAX_STAGE)
+		{
+			iter = list.erase(iter);
+		}
+		else
+		{
+			iter++;
+		}
 	}
+
+	sortList();
+
 	return;
 }
 

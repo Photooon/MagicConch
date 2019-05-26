@@ -96,8 +96,6 @@ string ToDo::getString(ToDoElem elem, bool showTime)
 
 void ToDo::sortList()
 {
-	vector<ToDoElem>::iterator beg = ToDoList.begin();
-	vector<ToDoElem>::iterator end = ToDoList.end();
 	sort(ToDoList.begin(), ToDoList.end(), ToDo::sortListFunc);
 }
 

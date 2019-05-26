@@ -10,8 +10,16 @@
 #define ADD_FISH 21
 #define DELETE_FISH 22
 #define SHOW_FISH 23
-#define REPEAT_START 31
-#define REPEAT_STOP 32
+#define WORD_SEARCH 31
+#define WORD_SHOW 32
+#define FILE_PATH_ADD 41
+#define FILE_PATH_DELETE 42
+#define FILE_PATH_SHOW 43
+#define FILE_COPY 44
+#define FILE_REMOVE 45
+#define FILE_MOVE 46
+#define REPEAT_START 51
+#define REPEAT_STOP 52
 #define PATH "F:\\MagicConch"
 
 #define ID_OF_MS 875275641
@@ -49,4 +57,12 @@ struct ToDoElem
 {
 	MTime time;
 	string thing;
+};
+
+struct Word
+{
+	string word;
+	string meaning;
+	MTime time;
+	int stage;
 };

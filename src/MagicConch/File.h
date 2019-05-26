@@ -3,6 +3,7 @@
 #include <io.h>
 #include <direct.h>
 #include <Windows.h>
+#include <cstdio>
 #include "common.h"
 
 using namespace std;
@@ -10,8 +11,12 @@ using namespace std;
 class File
 {
 public:
-	void load(map<int64_t, User*> &userlist, Interpreter &interpreter);		//供MagicConch构造时初始化
-	void save(map<int64_t, User*> &userlist);								//供MagicConch析构时保存状态
+	void load(map<int64_t, User*> &userlist, map<string, string> &replies, Interpreter &interpreter);	//供MagicConch构造时初始化
+	void save(map<int64_t, User*> &userlist);															//供MagicConch析构时保存状态
+
+	bool copy(string from, string to);
+	bool fremove(string path);
+	bool move(string from, string to);
 
 	/*测试变量与函数*/
 	int test;
@@ -22,6 +27,7 @@ private:
 	MagicConch *mag;
 	const string mainFileTree = PATH;										//存储存放文件的位置
 	const string InterpreterFileName = "Interpreter.txt";
+	const string ReplyFileName = "Reply.txt";
 	const string ToDoFileName = "ToDo.txt";
 	const string FishFileName = "Fish.txt";
 	const string WordFileName = "Word.txt";

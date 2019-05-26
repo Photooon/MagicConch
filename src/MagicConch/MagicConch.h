@@ -15,7 +15,7 @@ class MagicConch
 public:
 	MagicConch()
 	{
-		file.load(userList, interpreter);
+		file.load(userList, replies, interpreter);
 	}
 
 	~MagicConch()
@@ -44,9 +44,11 @@ private:
 	cq::Target lastGroupTarget;							//上一个(群)对象
 	
 	map<int64_t, User*> userList;						//user_id到User的对应
+	map<string, string> replies;						//所有的回复语句
 
 	Interpreter interpreter;
 	File file;
+	WordManager wordManager;
 
 	/*私有函数*/
 	bool isCommand();									//判断消息是否是一条指令
@@ -60,6 +62,7 @@ private:
 	void chat();										//根据message和聊天库聊天...
 	void print(int64_t id, string content);				//指定qq号发送消息
 	void print(string content);							//发送传入的content给最近一个target
+	void print(const int &number);						//指定qq号发送消息
 	void repeate();										//复读功能
 
 	/*测试使用代码开始*/

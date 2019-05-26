@@ -51,3 +51,41 @@ string User::getExpection()
 	}
 	return temp;
 }
+
+void User::addPath(const string &path)
+{
+	pathList.push_back(path);
+}
+
+bool User::deletePath(const int &line)
+{
+	int count = 1;
+	for (auto iter = pathList.begin(); iter != pathList.end(); iter++)
+	{
+		if (count == line)
+		{
+			pathList.erase(iter);
+			return true;
+		}
+		else
+		{
+			count++;
+		}
+	}
+}
+
+string User::getPath()
+{
+	string temp;
+
+	for (auto path = pathList.begin(); path != pathList.end(); path++)
+	{
+		if (path != pathList.begin())
+		{
+			temp += "\n";
+		}
+		temp += *path;
+	}
+
+	return temp;
+}

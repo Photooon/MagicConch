@@ -30,11 +30,10 @@ void MagicConch::pMessage(bool isPrivateMsg)
 		/*把User和消息绑定起来处理*/
 		interpreter.interpret(message, *u);
 
+		//print(1527842029, interpreter.testString);
+
 		switch (u->state)
 		{
-		case -1:							//取消之前的功能指令要求
-			u->clearRequirement();
-			break;
 		case 1:								//调用功能指令
 			callFunction();
 			u->clearRequirement();
@@ -123,24 +122,32 @@ User* MagicConch::bookUser(const int64_t id)
 
 void MagicConch::callFunction()
 {
-	/*权宜之计，以后用map和函数指针实现高效的检索...*/
-	print(to_string(u->funcCmdNum));
+	string meaning;
+
+	/*权宜之计...*/
+	//print(to_string(u->funcCmdNum));
 	switch (u->funcCmdNum)
 	{
 	case NULL:
 		u->clearRequirement();
+		print("好的呢");
 		break;
 	case TODO_ADD:
+		print("事件添加成功了哟");
 		u->todo.add(MTime::to_MTime(u->foundParas["Time"]), u->foundParas["Content"]);
 		break;
 	case TODO_SHOW:
+		print("你的DDL在这里哟");
 		print(u->todo.getList(u->showTodoEndTime));
 		break;
 	case TODO_DEL:
 		if (!(u->todo.del(stoi(u->foundParas["Line"]))))
 		{
-			print(u->foundParas["Line"]);
 			print("给的行数不对，不帮你改呢o(´^｀)o");
+		}
+		else
+		{
+			print("事件删除成功了哟(*^▽^*)");
 		}
 		break;
 	case TODO_CHANGE_CONTENT:
@@ -148,27 +155,99 @@ void MagicConch::callFunction()
 		{
 			print("给的行数不对，不帮你改呢o(´^｀)o");
 		}
+		else
+		{
+			print("更改事件的内容成功了哟(*^▽^*)");
+		}
+		break;
 	case TODO_CHANGE_TIME:
 		if (!(u->todo.changeEndTime(stoi(u->foundParas["Line"]), MTime::to_MTime(u->foundParas["Time"]))))
 		{
 			print("给的行数不对，不帮你改呢o(´^｀)o");
 		}
+		else
+		{
+			print("更改事件的时间成功了哟(*^▽^*)");
+		}
 		break;
 	case ADD_FISH:
+		print("我帮你看住了哟，等钓到了我一定会马上告诉你的! ");
 		u->addExpection(stoi(u->foundParas["Group"]), u->foundParas["Content"]);
 		break;
 	case DELETE_FISH:
+		print("删除鱼儿成功了呢");
 		u->deleteExpection(stoi(u->foundParas["Group"]), u->foundParas["Content"]);
 		break;
 	case SHOW_FISH:
+		print("你的鱼儿在这里，快看看↓");
 		print(u->getExpection());
+		break;
+	case WORD_SEARCH:
+		meaning = wordManager.searchword(u->foundParas["Content"]);
+		print("这个单词的意思是: " + meaning);
+		wordManager.saveword(MTime::now(), u->foundParas["Content"], meaning);			//查询完之后的保存
+		wordManager.update();
+		break;
+	case WORD_SHOW:
+		print("今天你要背的单词有: ");
+		print(wordManager.returnword(u->wordNum));
+		wordManager.update();
+		break;
+	case FILE_PATH_ADD:
+		u->addPath(u->foundParas["Path"]);
+		print("习惯目录添加上去了呢");
+		break;
+	case FILE_PATH_DELETE:
+		if (!(u->deletePath(stoi(u->foundParas["Line"]))))
+		{
+			print("给的行数不对，不帮你改呢o(´^｀)o");
+		}
+		else
+		{
+			print("删除习惯目录成功了哟(*^▽^*)");
+		}
+		break;
+	case FILE_COPY:
+		if (file.copy(u->foundParas["From"], u->foundParas["To"]))
+		{
+			print("复制成功了哟(*^▽^*)");
+		}
+		else
+		{
+			print(file.testS);
+			print("复制失败了呢o(╥﹏╥)o");
+		}
+		break;
+	case FILE_REMOVE:
+		if (file.fremove(u->foundParas["File"]))
+		{
+			print("文件删除成功了哟(*^▽^*)");
+		}
+		else
+		{
+			print("文件删除失败了呢o(╥﹏╥)o");
+		}
+		break;
+	case FILE_MOVE:
+		if (file.move(u->foundParas["From"],u->foundParas["To"]))
+		{
+			print("移动成功了哟(*^▽^*)");
+		}
+		else
+		{
+			print("移动失败了呢o(╥﹏╥)o");
+		}
+		break;
+	case FILE_PATH_SHOW:
+		print("你的目录在这里哟");
+		print(u->getPath());
 		break;
 	case REPEAT_START:
 		u->isRepeater = true;
 		break;
 	case REPEAT_STOP:
 		u->isRepeater = false;
-		break;
+		break;  
 	default:
 		break;
 	}
@@ -248,6 +327,11 @@ void MagicConch::print(int64_t id, string content)
 	cq::message::send(t, fmsg);
 }
 
+void MagicConch::print(const int &number)
+{
+	print(to_string(number));
+}
+
 void MagicConch::printState(const string more)
 {
 	cq::Message fmsg = std::to_string(string("神奇海螺：\n"));
@@ -266,7 +350,13 @@ void MagicConch::printState(const string more)
 
 void MagicConch::chat()
 {
-	
+	for each(auto reply in replies)
+	{
+		if (message.find(reply.first) != -1)
+		{
+			print(reply.second);
+		}
+	}
 }
 
 void MagicConch::repeate()

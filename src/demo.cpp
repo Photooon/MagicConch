@@ -27,7 +27,6 @@ CQ_MAIN {
 
         try {
 			myConch.InterfaceOfPrivateMsg(e);
-
             //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
             // MessageSegment 类提供一些静态成员函数以快速构造消息段
             //cq::Message msg = cq::MessageSegment::contact(cq::MessageSegment::ContactType::GROUP, 201865589);

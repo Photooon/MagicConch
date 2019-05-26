@@ -3,14 +3,34 @@
 void Interpreter::interpret(string &newMessage, User &user)
 {
 	message = newMessage;
-	u = &user;			//此处使用类自身的变量去指向user是为了后面提取参数的函数不需要有参数传递，提高效率
+	u = &user;						//此处使用类自身的变量去指向user是为了后面提取参数的函数不需要有参数传递，提高效率
+	int lastState = user.state;			//临时解决方案...
+
+	testString = "空";
 
 	if (matchFuncCmd())
 	{
 		extractPara();
 		if (u->lossParas.size() == 0)
 		{
-			u->state = 1;
+			if (u->funcCmdNum == 0)						//取消指令只有在之前状态是2时才生效
+			{
+				testString = "找到了取消指令";
+				if (lastState == 2)
+				{
+					testString = "取消指令是在上次命令没完成时被触发的";
+					u->state = 1;
+				}
+				else
+				{
+					testString = "取消指令被忽略了";
+					u->state = 3;
+				}
+			}
+			else
+			{
+				u->state = 1;
+			}
 		}
 		else
 		{

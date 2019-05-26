@@ -27,7 +27,7 @@ string UTF8ToGB(const char* str)
 }
 
 
-void File::load(map<int64_t, User*> &userlist, Interpreter &interpreter)
+void File::load(map<int64_t, User*> &userlist, map<string,string> &replies, Interpreter &interpreter)
 {
 	char line[100];
 	bool haveRead = false;												//这个变量用于表示因处理需要已提前拿取下一行，下次不用拿取
@@ -49,7 +49,6 @@ void File::load(map<int64_t, User*> &userlist, Interpreter &interpreter)
 	//读入Intepreter的关键词-功能对
 	string funcName;
 	int funcCmdNum;
-
 
 	haveRead = false;
 	filePath.assign(mainFileTree).append("\\").append(InterpreterFileName);
@@ -209,6 +208,42 @@ void File::load(map<int64_t, User*> &userlist, Interpreter &interpreter)
 	}
 	rf.close();
 
+	//读入Reply
+	string reply;
+
+	haveRead = false;
+	filePath.assign(mainFileTree).append("\\").append(ReplyFileName);
+	rf.open(filePath);
+	while (!rf.eof())
+	{
+		if (haveRead)
+		{
+			haveRead = false;
+		}
+		else
+		{
+			rf.getline(line, 100);
+		}
+		extractLabel(line, label);
+		reply = label;
+		while (!rf.eof())
+		{
+			rf.getline(line, 100);
+			if (line[0] != '[')
+			{
+				extractValue(line, key, content);
+				replies[content] = reply;
+			}
+			else
+			{
+				haveRead = true;
+				break;
+			}
+		}
+		
+	}
+	rf.close();
+
 	//下面将每一个下级文件夹作为一个User整体录入
 
 	getFolder(mainFileTree, idList);
@@ -354,6 +389,56 @@ void File::save(map<int64_t, User*> &userlist)
 		}
 		filePath.clear();
 		wf.close();
+	}
+}
+
+bool File::copy(string from, string to)
+{
+	ifstream in;
+	ofstream out;
+	in.open(from);
+	out.open(to, ios::trunc);
+	if (in.is_open() && out.is_open())
+	{
+		char x;
+		while (in >> x)
+		{
+			out << x;
+		}
+		out << endl;
+		in.close();
+		out.close();
+	}
+	else
+	{
+		in.close();
+		out.close();
+		return false;
+	}
+}
+
+bool File::fremove(string path)
+{
+	string temp = path;
+	if (remove(temp.c_str()) != -1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool File::move(string from, string to)
+{
+	if (copy(from, to) && fremove(from))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 

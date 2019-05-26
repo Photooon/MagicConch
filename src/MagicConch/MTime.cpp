@@ -27,6 +27,14 @@ MTime MTime::to_MTime(std::string &ntime)
 	}
 }
 
+MTime MTime::now()
+{
+	time_t n = time(0);
+	tm *localTime = localtime(&n);
+	MTime now(localTime->tm_year, localTime->tm_mon, localTime->tm_mday);
+	return now;
+}
+
 std::string MTime::getTimeString(char segment)
 {
 	std::string temp;
