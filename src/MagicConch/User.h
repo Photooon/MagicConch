@@ -9,8 +9,6 @@ public:
 	{
 		isRepeater = false;
 		showTodoEndTime = false;
-		preSeparator = '(';
-		backSeparator = ')';
 		wordNum = 8;
 	}
 
@@ -18,8 +16,6 @@ public:
 	{
 		isRepeater = false;
 		showTodoEndTime = false;
-		preSeparator = '(';
-		backSeparator = ')';
 		wordNum = 8;
 		filePath = path;
 	}
@@ -37,27 +33,26 @@ public:
 
 private:
 	/*私有变量*/
-	int64_t id;													//暂时只存储user_id，以后添加target对象的处理...
+	int64_t id;													//用户的QQ号
 
-	string lastMessage;											//存储User的上一条消息
+	string lastMessage;											//存储用户的上一条消息
 	map<int64_t,vector<string>> expection;						//期待的内容，区分不同的群，其中group_id = 0代表全体群对象
 	vector<string> pathList;									//存储所有的习惯目录
 
-	int state;													//此用户所处的消息状态（用于消息机制）
-	int funcCmdNum;												//请求功能指令的指令号
-	map<string, string> foundParas;								//存储依据功能从消息中提取出来的参数，按对存储参数
-	vector<string> lossParas;									//缺失的参数名称的列表
+	/*用于调用功能的缓存信息*/
+	int state;													//此用户所处的消息状态
+	int funcCmdNum;												//请求的功能指令的指令号
+	map<string, string> foundParas;								//存储依据功能从消息中提取出来的参数，参数名-参数值
+	vector<string> lossParas;									//缺失的参数的名称列表
 
 	ToDo todo;
 	
-	/*设置*/
+	/*设置变量*/
 	string filePath;											//资料存储路径
 	bool isRepeater;											//是否复读
 	bool showTodoEndTime;										//展示todo的endTime，默认为否
-	char preSeparator;											//前分割符
-	char backSeparator;											//后分割符
 	int wordNum;												//一次记忆的单词数量
 
 	/*私有函数*/
-	void clearRequirement();									//清楚目前存储的用于调用功能的变量以及把状态设置为0
+	void clearRequirement();									//清楚缓存的调用功能信息
 };

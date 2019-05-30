@@ -1,6 +1,4 @@
-﻿#include "Interpreter.h"
-#include "File.h"
-#include "ToDo.h"
+﻿#include "File.h"
 
 //转码函数
 string UTF8ToGB(const char* str)
@@ -25,7 +23,6 @@ string UTF8ToGB(const char* str)
 
 	return result;
 }
-
 
 void File::load(map<int64_t, User*> &userlist, map<string,string> &replies, Interpreter &interpreter)
 {
@@ -258,8 +255,6 @@ void File::load(map<int64_t, User*> &userlist, map<string,string> &replies, Inte
 		userlist[u_id] = pu;
 
 		/*再载入内容*/
-		//先载入Settings
-		//...
 
 		//载入Todo
 		filePath.assign(path).append("\\").append(ToDoFileName);
@@ -351,7 +346,7 @@ void File::save(map<int64_t, User*> &userlist)
 				label += "[";
 				label += it->time.getTimeString();
 				label += "]\n";
-				content = "Thing=" + it->thing;		//这里可能会带来后期更改todo的麻烦，但是今天晚了我就这样吧hihi
+				content = "Thing=" + it->thing;
 
 				wf << label;
 				wf << content;
@@ -452,7 +447,7 @@ void File::extractLabel(const char* line, string &label)
 	//使用迭代将内容提出来
 	for (string::iterator iter = sline.begin(); iter != sline.end() && (*iter != ']'); iter++)
 	{
-		if (*iter == '[')												//后期补一个错误处理...
+		if (*iter == '[')
 		{
 			flag = true;
 			continue;													//跳过'['
@@ -465,30 +460,6 @@ void File::extractLabel(const char* line, string &label)
 	}
 	return;
 }
-
-void File::extractLabel(string &sline, string &label)
-{
-	bool flag = false;
-	//清除之前的残留
-	label.clear();
-
-	//使用迭代将内容提出来
-	for (string::iterator iter = sline.begin(); iter != sline.end() && (*iter != ']'); iter++)
-	{
-		if (*iter == '[')												//后期补一个错误处理...
-		{
-			flag = true;
-			continue;													//跳过'['
-		}
-
-		if (flag)
-		{
-			label.push_back(*iter);
-		}
-	}
-	return;
-}
-
 
 void File::extractValue(const char* line,string &key,string &content)
 {
@@ -519,37 +490,8 @@ void File::extractValue(const char* line,string &key,string &content)
 	return;
 }
 
-void File::extractValue(string &sline, string &key, string &content)
-{
-	bool flag = false;
-	//清除之前的残留
-	key.clear();
-	content.clear();
-
-	//使用迭代将内容提出来
-	for (string::iterator iter = sline.begin(); iter != sline.end() && (*iter != '\n'); iter++)
-	{
-		if (*iter == '=')												//后期补一个错误处理
-		{
-			flag = true;
-			continue;													//跳过'='
-		}
-
-		if (flag)
-		{
-			content.push_back(*iter);
-		}
-		else
-		{
-			key.push_back(*iter);
-		}
-	}
-	return;
-}
-
 void File::getFolder(string path, vector<string> &folder)
 {
-	/*这段获取文件夹下子文件夹名字的代码参考CSDN*/
 	long hFile = 0;
 	struct _finddata64i32_t fileInfo;
 	string p;

@@ -1,6 +1,5 @@
 ﻿#pragma once
-#include <string>
-#include <iostream>
+
 #include "common.h"
 
 class ToDo
@@ -15,8 +14,7 @@ public:
 	string getList(bool showEndTime = false);									//直接将List内的todo全转化为一条string，用\n分开
 	void sortList();															//用于被调用进行排序
 
-	friend MagicConch;
-	friend File;
+	friend File;																//便于保存
 
 private:
 	/*私有变量*/

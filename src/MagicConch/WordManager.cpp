@@ -2,8 +2,10 @@
 
 #pragma comment(lib,"winhttp.lib")
 #pragma comment(lib,"user32.lib")
+
 using namespace std;
 
+/*WString转String*/
 string WStringToString(const std::wstring &wstr)
 {
 	string str;

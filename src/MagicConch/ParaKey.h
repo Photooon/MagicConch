@@ -6,12 +6,12 @@
 
 using namespace std;
 
-struct ParaKeyElem
+struct ParaKeyElem					//一个基本的识别单元
 {
-	int pattern;
-	string keyType;
-	string preKey;
-	string backKey;
+	int pattern;					//识别模式
+	string keyType;					//识别内容的类型
+	string preKey;					//识别的前关键词
+	string backKey;					//识别的后关键词
 };
 
 class ParaKey
@@ -29,12 +29,12 @@ public:
 		}
 	}
 
-	std::string extract(const string &msg);
-	void addElem(const int &patn, const string &type, const string &pk, const string &bk);
+	std::string extract(const string &msg);							//识别并返回提取到的内容
+	void addElem(const int &patn, const string &type, const string &pk, const string &bk);		//被file调用，添加识别单元
 
 private:
 	/*私有变量*/
-	vector<ParaKeyElem*> keyList;									//存储所有该参数可以使用的模型
+	vector<ParaKeyElem*> keyList;									//存储所有该参数可以使用的识别单元
 
 	/*私有函数*/
 	bool isNum(const string &str);									//判断是否是数字

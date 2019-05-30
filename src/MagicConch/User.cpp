@@ -10,7 +10,7 @@ void User::clearRequirement()
 
 void User::addExpection(const int64_t &group_id, const string &s)
 {
-	expection[group_id].push_back(s);			//如果expection原来没有这个群对象，会产生一个新的
+	expection[group_id].push_back(s);
 }
 
 void User::deleteExpection(const int64_t &groupId, const string &s)
@@ -38,9 +38,9 @@ string User::getExpection()
 	{
 		for (auto it = iter->second.begin(); it != iter->second.end(); it++)
 		{
-			temp += "Group_id: ";
+			temp += "群号: ";
 			temp += to_string(iter->first);
-			temp += "   Content: ";
+			temp += "   鱼: ";
 			temp += *it;
 			temp += "\n";
 		}

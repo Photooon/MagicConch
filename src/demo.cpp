@@ -27,10 +27,7 @@ CQ_MAIN {
 
         try {
 			myConch.InterfaceOfPrivateMsg(e);
-            //api::send_msg(e.target, e.message); // 使用 e.target 指定发送目标
-            // MessageSegment 类提供一些静态成员函数以快速构造消息段
-            //cq::Message msg = cq::MessageSegment::contact(cq::MessageSegment::ContactType::GROUP, 201865589);
-            //msg.send(e.target); // 使用 Message 类的 send 成员函数
+            
         } catch (const cq::exception::ApiError &err) {
             // API 调用失败
             logging::debug(u8"API", u8"调用失败，错误码：" + std::to_string(err.code));
@@ -44,10 +41,6 @@ CQ_MAIN {
 
 			myConch.InterfaceOfGroupMsg(e);
 			
-            //const auto memlist = api::get_group_member_list(e.group_id);
-            //cq::Message msg = e.message;
-            //msg += std::to_string(memlist.size()) + u8" 个成员";
-            //message::send(e.target, msg);
         } catch (const cq::exception::ApiError &err) {
             cq::logging::warning(
                 u8"MagicConch",
@@ -57,20 +50,4 @@ CQ_MAIN {
         }
         e.block();	//阻止其他插件获取消息
     };
-}
-
-// 添加菜单项，需要同时在 <appid>.json 文件的 menu 字段添加相应的条目，function 字段为 menu_demo_1
-CQ_MENU(menu_demo_1) {
-    logging::info(u8"菜单", u8"点击了示例菜单1");
-    try {
-        api::send_private_msg(10000, "hello");
-    } catch (const cq::exception::ApiError &) {
-        logging::warning(u8"菜单", u8"发送失败");
-    }
-}
-
-// 不像 CQ_INITIALIZE 和 CQ_MAIN，CQ_MENU 可以多次调用来添加多个菜单
-CQ_MENU(menu_demo_2) {
-    logging::info(u8"菜单", u8"点击了示例菜单2");
-    cq::config.convert_unicode_emoji = !cq::config.convert_unicode_emoji;
 }

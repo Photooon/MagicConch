@@ -2,6 +2,12 @@
 
 void MagicConch::pMessage(bool isPrivateMsg)
 {
+	/*由于开发过程使用了供需群，为避免意外，在这里做个预防处理*/
+	if (!isPrivateMsg && groupId == 342511980 && userList.count(userId))		//如果是在供需群中发现了已注册用户的发言，不处理
+	{
+		return;
+	}
+
 	/*如果是在群聊中遇到新用户，不注册且不处理消息（防止加入供需群时，注册过多的用户）*/
 	if (!isPrivateMsg && !userList.count(userId))
 	{
@@ -34,27 +40,25 @@ void MagicConch::pMessage(bool isPrivateMsg)
 
 		switch (u->state)
 		{
-		case 1:								//调用功能指令
+		case 1:								//状态1（功能调用成功，且参数完全），调用功能指令
 			callFunction();
-			u->clearRequirement();
+			u->clearRequirement();			//清楚暂时的缓存数据
 			break;
 		case 2:								//参数不足，询问更多参数
 			askMoreInfo();
 			break;
-		default:
+		default:							//不是一个功能请求，按对话库回复
 			chat();
 		}
 
 		u->lastMessage = message;
 	}
 
-	/*常功能调用区*/
+	/*常功能（一些必须在每句话之后都调用的功能）调用区*/
 	if (u->isRepeater)			//复读功能
 	{
-		repeate();				//因为这时的message仍然和user里面的lastMessage一样，所以不去特地repeat User里面的message了
+		repeate();
 	}
-
-	
 }
 
 void MagicConch::InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg)
@@ -74,19 +78,18 @@ void MagicConch::InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg)
 void MagicConch::InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg)
 {
 	/*更新内容*/
-	
 	lastMessage = message;
 	lastGroupTarget = target;
 	message = msg.message.extract_plain_text();
 	target = msg.target;
 	userId = msg.user_id;
+	groupId = msg.group_id;
 
 	/*处理消息*/
 	pMessage(false);
 
 	/*群聊特殊功能区*/
 	//钓鱼（消息）功能
-	
 	for (auto iter = userList.begin(); iter != userList.end(); iter++)
 	{
 		for (auto it = iter->second->expection.begin(); it != iter->second->expection.end(); it++)
@@ -97,14 +100,13 @@ void MagicConch::InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg)
 				{
 					if (message.find(*i) != string::npos && msg.user_id != iter->first)			//不是本人说的话
 					{
-						//emmmmmm不知道为什么直接构造了放进print会有多余的true，先这样写着
 						string temp = "在群: ";
 						temp += to_string(msg.group_id);
 						temp.append("里面找到了期待内容: ");
 						temp += message;
 						temp += "   来自: ";
 						temp += to_string(msg.user_id);
-						print(iter->first, temp + "find");
+						print(iter->first, temp);
 					}
 				}
 			}
@@ -124,7 +126,6 @@ void MagicConch::callFunction()
 {
 	string meaning;
 
-	/*权宜之计...*/
 	//print(to_string(u->funcCmdNum));
 	switch (u->funcCmdNum)
 	{
@@ -255,8 +256,8 @@ void MagicConch::callFunction()
 
 void MagicConch::askMoreInfo()
 {
-	print(to_string(u->funcCmdNum));
-	//根据interpreter的参数列表和功能需求构造询问消息
+	//print(to_string(u->funcCmdNum));
+	//根据user的缺失参数列表构造询问消息
 	cq::Message fmsg = std::to_string(string("我还有需要知道下面几件事就能帮你了呢(￣▽￣)~*\n"));
 	for (vector<string>::iterator iter = u->lossParas.begin(); iter != u->lossParas.end(); iter++)
 	{
@@ -265,7 +266,6 @@ void MagicConch::askMoreInfo()
 			fmsg += "和";
 		}
 		fmsg += *iter;
-		
 	}
 	cq::message::send(target, fmsg);
 }
@@ -303,15 +303,9 @@ void MagicConch::pCommand()
 	{
 		temp.push_back(message[pos]);
 	}
-	if (temp == "开始复读")
-	{
-		isRepeater = true;
-	}
-	else if(temp == "停止复读")
-	{
-		isRepeater = false;
-	}
-	
+
+	/*根据temp内容找出指令……*/
+	//pass
 }
 
 void MagicConch::print(string content)
@@ -335,8 +329,6 @@ void MagicConch::print(const int &number)
 void MagicConch::printState(const string more)
 {
 	cq::Message fmsg = std::to_string(string("神奇海螺：\n"));
-	fmsg += std::to_string(string("isRepeater："));
-	fmsg += std::to_string(isRepeater);
 	fmsg += std::to_string(string("\nlastMessage："));
 	fmsg += std::to_string(lastMessage);
 	fmsg += std::to_string(string("\nnewMessage："));

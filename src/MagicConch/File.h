@@ -1,10 +1,14 @@
 ﻿#pragma once
+
 #include <fstream>
 #include <io.h>
 #include <direct.h>
 #include <Windows.h>
 #include <cstdio>
+
 #include "common.h"
+#include "ToDo.h"
+#include "Interpreter.h"
 
 using namespace std;
 
@@ -14,7 +18,7 @@ public:
 	void load(map<int64_t, User*> &userlist, map<string, string> &replies, Interpreter &interpreter);	//供MagicConch构造时初始化
 	void save(map<int64_t, User*> &userlist);															//供MagicConch析构时保存状态
 
-	bool copy(string from, string to);
+	bool copy(string from, string to);																	//File的复制、移动、删除功能
 	bool fremove(string path);
 	bool move(string from, string to);
 
@@ -24,7 +28,6 @@ public:
 
 private:
 	/*私有变量*/
-	MagicConch *mag;
 	const string mainFileTree = PATH;										//存储存放文件的位置
 	const string InterpreterFileName = "Interpreter.txt";
 	const string ReplyFileName = "Reply.txt";
@@ -39,10 +42,8 @@ private:
 	/*私有函数*/
 	void getFolder(string path, vector<string> &folder);
 	void extractLabel(const char* line, string &label);						//从标签行中提取标签内容
-	void extractLabel(string &sline, string &label);
-	void extractValue(string &sline, string &key, string &content);
 	void extractValue(const char* line, string &key, string &content);		//从值表达式中提取内容
-	void close()
+	void close()															//为避免忘记关闭文件，会在load函数末尾调用此函数
 	{
 		wf.close();
 		rf.close();

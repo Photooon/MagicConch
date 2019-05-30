@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-/*在这里定义一下宏，便于测试*/
+/*宏定义*/
 #define CANCEL 0
 #define TODO_ADD 11
 #define TODO_DEL 12
@@ -22,6 +22,7 @@
 #define REPEAT_STOP 52
 #define PATH "F:\\MagicConch"
 
+/*管理员账号*/
 #define ID_OF_MS 875275641
 #define ID_OF_XX 614976675
 #define ID_OF_LW 1527842029
@@ -47,10 +48,10 @@ class User;
 struct FuncCmdElem
 {
 	int funcCmdNum;												//此功能指令的具体代号
-	string funcName;
-	string funcCmdName;
-	vector<vector<string>> keyChain;							//所有能打开这个功能的钥匙串（每个钥匙串上的钥匙由钥匙碎片组成）
-	map<string, ParaKey*> paraList;								//参数列表
+	string funcName;											//功能名
+	string funcCmdName;											//功能指令名
+	vector<vector<string>> keyChain;							//打开这个功能需要的关键词组，要求句子中至少含有一组关键词才可以调用功能
+	map<string, ParaKey*> paraList;								//参数名-参数模块类
 };
 
 struct ToDoElem
