@@ -15,8 +15,8 @@ using namespace std;
 class File
 {
 public:
-	void load(map<int64_t, User*> &userlist, map<string, string> &replies, Interpreter &interpreter);	//供MagicConch构造时初始化
-	void save(map<int64_t, User*> &userlist);															//供MagicConch析构时保存状态
+	void load(map<int64_t, User*> &userlist, vector<Reply*> &replies, Interpreter &interpreter);		//供MagicConch构造时初始化
+	void save(map<int64_t, User*> &userlist, vector<Reply*> &replies);								//供MagicConch析构时保存状态
 
 	bool copy(string from, string to);																	//File的复制、移动、删除功能
 	bool fremove(string path);

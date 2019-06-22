@@ -18,13 +18,13 @@ public:
 	WordManager();
 	~WordManager();
 
-	void add(const string &w,const string &meaning,string &st, const int &stage);
+	void add(const string &w,const string &meaning,string &st, const int &stage);		//添加入单词列表
 
-	string searchword(string word);
-	string returnword(int num);
+	string searchword(string word);							//查找单词
+	string returnword(int num);								//返回需要背诵的单词列表
 
-	void saveword(MTime time, string word, string meaning, int stage = 0);
-	void update();
+	void saveword(MTime time, string word, string meaning, int stage = 0);		//保存查询过的单词
+	void update();				//刷新待背单词列表
 
 private:
 	vector<Word>list;													//所有的待背单词

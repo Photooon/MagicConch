@@ -33,10 +33,24 @@ void MagicConch::pMessage(bool isPrivateMsg)
 		{
 			u = userList[userId];
 		}
+
+		//print(1527842029, interpreter.testString);
+
 		/*把User和消息绑定起来处理*/
 		interpreter.interpret(message, *u);
 
-		//print(1527842029, interpreter.testString);
+		/*处理忽略群聊情况*/
+		if (!isPrivateMsg && !(u->state == 1 && u->funcCmdNum == 72))		//如果是在群组消息中，且不是在调用恢复回复的功能
+		{
+			for each(auto gid in banGroupList)
+			{
+				if (gid == groupId)					//并且这个群在被禁止的名单中
+				{
+					u->clearRequirement();			//清除所理解的内容，并直接返回，不调用任何功能和回复
+					return;
+				}
+			}
+		}
 
 		switch (u->state)
 		{
@@ -125,6 +139,7 @@ User* MagicConch::bookUser(const int64_t id)
 void MagicConch::callFunction()
 {
 	string meaning;
+	Reply* nr;
 
 	//print(to_string(u->funcCmdNum));
 	switch (u->funcCmdNum)
@@ -249,6 +264,52 @@ void MagicConch::callFunction()
 	case REPEAT_STOP:
 		u->isRepeater = false;
 		break;  
+	case REPLY_ADD:
+		//先看看原来的回复块里面有没有这个关键词，有的话把这条回复填入已有的回复块中
+		for each(auto reply in replies)
+		{
+			if (reply->haveKeyword(u->foundParas["Keyword"]))
+			{
+				reply->add(u->foundParas["Content"]);
+				print("海螺记住了哟");
+				return;					//此处仅用break没效果，所以用return
+			}
+		}
+		//如果已有的回复块中没有这个关键词，那么构建一个新的Reply
+		nr = new Reply(u->foundParas["Keyword"], u->foundParas["Content"]);
+		replies.push_back(nr);
+		print("海螺记住了哟");
+		break;
+	case REPLY_DEL:
+		for (auto reply = replies.begin(); reply != replies.end(); reply++)
+		{
+			if ((*reply)->haveKeyword(u->foundParas["Keyword"]))
+			{
+				if (!(*reply)->del(u->foundParas["Content"]))			//返回假表示该回复块已经没有回复语句，删除该回复块
+				{
+					replies.erase(reply);
+				}
+				print("好滴，我已经忘得干干净净了！");
+				return;
+			}
+		}
+		break;
+	case GROUP_BAN:
+		banGroupList.push_back(groupId);				//屏蔽当前群聊
+		print("小海螺知道了，我不会偷听的o(╥﹏╥)o");
+		break;
+	case GROUP_LIFT_BAN:
+		for (auto iter = banGroupList.begin(); iter != banGroupList.end(); iter++)
+		{
+			if (*iter == groupId)
+			{
+				banGroupList.erase(iter);
+				print("又可以说话了，小海螺好开心呢(*^▽^*)");
+				return;
+			}
+		}
+		print("我一直在听着哟嘿嘿嘿(*^▽^*)");
+		break;
 	default:
 		break;
 	}
@@ -344,9 +405,9 @@ void MagicConch::chat()
 {
 	for each(auto reply in replies)
 	{
-		if (message.find(reply.first) != -1)
+		if (reply->isTriggerred(message))
 		{
-			print(reply.second);
+			print(reply->getRandomReply());
 		}
 	}
 }

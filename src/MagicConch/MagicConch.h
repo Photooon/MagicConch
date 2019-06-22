@@ -19,15 +19,19 @@ public:
 
 	~MagicConch()
 	{
-		file.save(userList);
+		file.save(userList, replies);
 		for each (auto iter in userList)
 		{
 			delete iter.second;
 		}
+
+		for each(auto iter in replies)
+		{
+			delete iter;
+		}
 	}
 
 	/*处理事件函数*/
-	void pMessage(bool isPrivateMsg = true);							//process message，在pPMessage和pGMessage中被调用，用于处理消息
 	void InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg);		//是cq::event::on_private_msg和MagicConch的接口
 	void InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg);			//是cq::event::on_group_msg和MagicConch的接口
 
@@ -44,7 +48,9 @@ private:
 	cq::Target lastGroupTarget;							//上一个(群)对象
 	
 	map<int64_t, User*> userList;						//user_id到User的对应
-	map<string, string> replies;						//所有的回复语句
+	vector<Reply*> replies;								//所有的回复
+
+	vector<int64_t> banGroupList;						//不回复的群聊
 
 	Interpreter interpreter;
 	File file;
@@ -57,6 +63,7 @@ private:
 
 	User* bookUser(const int64_t id);					//登记一个未有记录的User
 
+	void pMessage(bool isPrivateMsg = true);			//process message，在pPMessage和pGMessage中被调用，用于处理消息
 	void callFunction();								//负责起调功能
 	void askMoreInfo();									//根据u中的缺失参数列表发出要求更多信息的消息
 	void chat();										//根据message和聊天库回复用户

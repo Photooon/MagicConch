@@ -20,6 +20,10 @@
 #define FILE_MOVE 46
 #define REPEAT_START 51
 #define REPEAT_STOP 52
+#define REPLY_ADD 61
+#define REPLY_DEL 62
+#define GROUP_BAN 71
+#define GROUP_LIFT_BAN 72
 #define PATH "F:\\MagicConch"
 
 /*管理员账号*/
@@ -34,6 +38,7 @@
 #include <algorithm>
 #include "MTime.h"
 #include "ParaKey.h"
+#include "Reply.h"
 
 using namespace std;
 

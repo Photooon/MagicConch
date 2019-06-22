@@ -20,6 +20,7 @@ public:
 		filePath = path;
 	}
 
+	void clearRequirement();															//清楚缓存的调用功能信息
 	void addExpection(const int64_t &groupId, const string &s);							//添加用户期待内容
 	void deleteExpection(const int64_t &groupId, const string &s);						//删除用户期待内容
 	string getExpection();																//将期待内容转为格式字符串输出
@@ -52,7 +53,4 @@ private:
 	bool isRepeater;											//是否复读
 	bool showTodoEndTime;										//展示todo的endTime，默认为否
 	int wordNum;												//一次记忆的单词数量
-
-	/*私有函数*/
-	void clearRequirement();									//清楚缓存的调用功能信息
 };

@@ -24,7 +24,7 @@ string UTF8ToGB(const char* str)
 	return result;
 }
 
-void File::load(map<int64_t, User*> &userlist, map<string,string> &replies, Interpreter &interpreter)
+void File::load(map<int64_t, User*> &userlist, vector<Reply*> &replies, Interpreter &interpreter)
 {
 	char line[100];
 	bool haveRead = false;												//这个变量用于表示因处理需要已提前拿取下一行，下次不用拿取
@@ -206,7 +206,8 @@ void File::load(map<int64_t, User*> &userlist, map<string,string> &replies, Inte
 	rf.close();
 
 	//读入Reply
-	string reply;
+	vector<string> nkeywords;
+	vector<string> nreplies;
 
 	haveRead = false;
 	filePath.assign(mainFileTree).append("\\").append(ReplyFileName);
@@ -222,22 +223,49 @@ void File::load(map<int64_t, User*> &userlist, map<string,string> &replies, Inte
 			rf.getline(line, 100);
 		}
 		extractLabel(line, label);
-		reply = label;
-		while (!rf.eof())
-		{
-			rf.getline(line, 100);
-			if (line[0] != '[')
-			{
-				extractValue(line, key, content);
-				replies[content] = reply;
-			}
-			else
-			{
-				haveRead = true;
-				break;
-			}
-		}
 		
+		if (label == "Keyword")
+		{
+			while (!rf.eof())
+			{
+				rf.getline(line, 100);
+				extractLabel(line, label);
+				if (label == "/Keyword")
+				{
+					break;
+				}
+				else
+				{
+					extractValue(line, key, content);
+					nkeywords.push_back(content);
+				}
+			}
+
+			rf.getline(line, 100);
+			extractLabel(line, label);
+			if (label == "Reply")
+			{
+				while (!rf.eof())
+				{
+					rf.getline(line, 100);
+					extractLabel(line, label);
+					if (label == "/Reply")
+					{
+						break;
+					}
+					else
+					{
+						extractValue(line, key, content);
+						nreplies.push_back(content);
+					}
+				}
+			}
+
+			Reply* p = new Reply(nkeywords, nreplies);
+			replies.push_back(p);
+			nkeywords.clear();
+			nreplies.clear();
+		}
 	}
 	rf.close();
 
@@ -313,7 +341,7 @@ void File::load(map<int64_t, User*> &userlist, map<string,string> &replies, Inte
 	close();
 }
 
-void File::save(map<int64_t, User*> &userlist)
+void File::save(map<int64_t, User*> &userlist, vector<Reply*> &replies)
 {
 	string folderPath;
 	string filePath;
@@ -324,6 +352,25 @@ void File::save(map<int64_t, User*> &userlist)
 	{
 		mkdir(PATH);
 	}
+
+	/*下面写入Reply*/
+	filePath.assign(mainFileTree).append("\\").append(ReplyFileName);
+	wf.open(filePath, ios::trunc);
+	if (wf.is_open())
+	{
+		string saveString;
+		for each (auto reply in replies)
+		{
+			saveString += reply->getSaveString();
+		}
+		saveString.pop_back();							//删掉最后一个换行符
+		wf << saveString;
+		wf.close();
+	}
+
+
+
+	/*下面写入User数据*/
 	for (auto iter = userlist.begin(); iter != userlist.end(); iter++)
 	{
 		folderPath.assign(mainFileTree).append("\\").append(to_string(iter->first));
