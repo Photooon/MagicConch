@@ -1,4 +1,5 @@
-﻿#include "WordManager.h"
+﻿#include <algorithm>
+#include "WordManager.h"
 
 #pragma comment(lib,"winhttp.lib")
 #pragma comment(lib,"user32.lib")
@@ -17,6 +18,21 @@ string WStringToString(const std::wstring &wstr)
 		return "";
 	}
 	return str;
+}
+
+/*String转Wstring*/
+std::wstring String2WString(const std::string& s)
+{
+	std::string strLocale = setlocale(LC_ALL, "");
+	const char* chSrc = s.c_str();
+	size_t nDestSize = mbstowcs(NULL, chSrc, 0) + 1;
+	wchar_t* wchDest = new wchar_t[nDestSize];
+	wmemset(wchDest, 0, nDestSize);
+	mbstowcs(wchDest, chSrc, nDestSize);
+	std::wstring wstrResult = wchDest;
+	delete[]wchDest;
+	setlocale(LC_ALL, strLocale.c_str());
+	return wstrResult;
 }
 
 void WordManager::add(const string &w, const string &meaning, string &st, const int &stage)
@@ -90,16 +106,31 @@ string WordManager::searchword(string word)
 			}
 			else
 			{
-				//cout<<pszOutBuffer;
-                
+				//cout<<pszOutBuffer;  
 				Json::Reader reader;
 				Json::Value root;
 				if (reader.parse(pszOutBuffer, root))  // reader将Json字符串解析到root，root将包含Json里所有子元素  
 				{
 					//cout << root["type"].asString()<<endl;
 					const Json::Value arrayObj = root["translateResult"][0][0];
-					wstring out = c.UTF8ToUnicode(arrayObj["tgt"].asString());
-					restr = c.UnicodeToUTF8(out);
+					
+					if (root["type"] == "ZH_CN2EN")
+					{
+						restr = arrayObj["tgt"].asString();
+					}
+					else if(root["type"] == "EN2ZH_CN")
+					{
+						restr = arrayObj["tgt"].asString();
+					}
+					else
+					{
+						restr = "Error Type!";
+					}
+					
+					//restr = "jiadehailuo";
+					//restr = c.UnicodeToANSI(c.UTF8ToUnicode(arrayObj["tgt"].asString()));
+					//wstring out = c.UTF8ToUnicode(arrayObj["tgt"].asString());
+					//restr = c.UnicodeToUTF8(out);
 					//cout << "翻译结果：";
 					//wcout.imbue(locale("chs"));
 					//wcout << out << endl;
@@ -107,6 +138,8 @@ string WordManager::searchword(string word)
 				}
 
 			}
+
+
 
 			delete[] pszOutBuffer;
 

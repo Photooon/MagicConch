@@ -1,4 +1,5 @@
-﻿#include "ToDo.h"
+﻿#include <algorithm>
+#include "ToDo.h"
 
 bool ToDo::add(MTime time, string &thing)
 {

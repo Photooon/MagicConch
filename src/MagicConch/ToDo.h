@@ -1,6 +1,12 @@
 ﻿#pragma once
-
 #include "common.h"
+#include "MTime.h"
+
+struct ToDoElem
+{
+	MTime time;
+	string thing;
+};
 
 class ToDo
 {

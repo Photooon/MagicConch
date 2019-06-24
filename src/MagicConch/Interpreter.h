@@ -1,8 +1,9 @@
 ﻿#pragma once
+
 #include "common.h"
 #include "User.h"
-
-using namespace std;
+#include "Structs.h"
+#include "MagicConch/Tools/ParaKey.h"
 
 class Interpreter
 {

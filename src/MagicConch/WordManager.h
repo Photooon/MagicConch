@@ -1,16 +1,22 @@
 ﻿#pragma once
-
 #include <windows.h>
 #include <Windows.h>
 #include <winhttp.h>
 
-#include"common.h"
 #include "Dependencies/json.h"
 #include "Dependencies/CUtil.h"
 
-#define MAX_STAGE 2						//最大的复习次数-1
+#include"common.h"
+#include "MTime.h"
+#include "MagicConch\Support Files\Macros.h"
 
-using namespace std;
+struct Word
+{
+	string word;
+	string meaning;
+	MTime time;
+	int stage;
+};
 
 class WordManager
 {
@@ -33,5 +39,3 @@ private:
 	static bool WordManager::sortFunc(Word &w1, Word &w2);				//供vector使用的排序函数
 	//PCHAR WideStrToMultiByte(PWCHAR pwcharWideStr);
 };
-
-

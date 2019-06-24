@@ -1,14 +1,22 @@
-﻿$libName = $args[0]
-$outDir = $args[1]
+﻿$coolqRoot = "D:\酷Q Air"
 
+$appId = $args[0]
+$libName = "com.company.MagicConch"
+$appOutDir = "C:\Users\15278\runoob\my-awesome-app\build\Debug\Debug"
+
+$coolqAppDir = "$coolqRoot\app"
+$coolqDevDir = "$coolqRoot\dev"
 $dllName = "$libName.dll"
-$dllPath = "$outDir\$dllName"
+$dllPath = "$appOutDir\$dllName"
 $jsonName = "$libName.json"
-$jsonPath = "$outDir\$jsonName"
+$jsonPath = "$appOutDir\$jsonName"
 
 Write-Host "正在拷贝插件到 酷Q 应用文件夹……"
 
-Copy-Item -Force $dllPath "C:\path\to\coolq\app\$dllName" # 注意修改 酷Q 目录
-Copy-Item -Force $jsonPath "C:\path\to\coolq\app\$jsonName"
+New-Item -Path $coolqAppDir -ItemType Directory -ErrorAction SilentlyContinue
+Copy-Item -Force $dllPath "$coolqAppDir\$dllName"
+Copy-Item -Force $jsonPath "$coolqAppDir\$jsonName"
+
+Remove-Item "$coolqDevDir\$libName" -Recurse
 
 Write-Host "拷贝完成" -ForegroundColor Green

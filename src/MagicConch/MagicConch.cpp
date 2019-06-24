@@ -1,4 +1,6 @@
-﻿#include "MagicConch.h"
+﻿#include "MTime.h"
+#include "MagicConch.h"
+#include "MagicConch/Tools/Reply.h"
 
 void MagicConch::pMessage(bool isPrivateMsg)
 {
@@ -296,7 +298,7 @@ void MagicConch::callFunction()
 		break;
 	case GROUP_BAN:
 		banGroupList.push_back(groupId);				//屏蔽当前群聊
-		print("小海螺知道了，我不会偷听的o(╥﹏╥)o");
+		print("小海螺知道了o(╥﹏╥)o");
 		break;
 	case GROUP_LIFT_BAN:
 		for (auto iter = banGroupList.begin(); iter != banGroupList.end(); iter++)
@@ -304,7 +306,7 @@ void MagicConch::callFunction()
 			if (*iter == groupId)
 			{
 				banGroupList.erase(iter);
-				print("又可以说话了，小海螺好开心呢(*^▽^*)");
+				print("小海螺开心嘻嘻嘻(*^▽^*)");
 				return;
 			}
 		}

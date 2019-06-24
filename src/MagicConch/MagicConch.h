@@ -2,12 +2,11 @@
 #include "cqsdk/cqsdk.h"
 #include "common.h"
 #include "User.h"
-#include "Interpreter.h"
 #include "ToDo.h"
 #include "File.h"
+#include "Interpreter.h"
 #include "WordManager.h"
-
-using namespace std;
+#include "MagicConch/Support Files/Macros.h"
 
 class MagicConch
 {
@@ -55,6 +54,8 @@ private:
 	Interpreter interpreter;
 	File file;
 	WordManager wordManager;
+
+
 
 	/*私有函数*/
 	bool isCommand();									//判断消息是否是一条指令

@@ -1,16 +1,11 @@
 ﻿#pragma once
-
-#include <fstream>
-#include <io.h>
-#include <direct.h>
-#include <Windows.h>
-#include <cstdio>
-
 #include "common.h"
 #include "ToDo.h"
+#include "Structs.h"
 #include "Interpreter.h"
-
-using namespace std;
+#include "MagicConch/Tools/ParaKey.h"
+#include "MagicConch/Tools/Reply.h"
+#include "MagicConch/Support Files/Macros.h"
 
 class File
 {
