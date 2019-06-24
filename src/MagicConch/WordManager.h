@@ -7,7 +7,7 @@
 #include "Dependencies/CUtil.h"
 
 #include"common.h"
-#include "MTime.h"
+#include "MagicConch/Tools/MTime.h"
 #include "MagicConch\Support Files\Macros.h"
 
 struct Word

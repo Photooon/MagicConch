@@ -1,5 +1,5 @@
-﻿#include "MTime.h"
-#include "MagicConch.h"
+﻿#include "MagicConch.h"
+#include "MagicConch/Tools/MTime.h"
 #include "MagicConch/Tools/Reply.h"
 
 void MagicConch::pMessage(bool isPrivateMsg)

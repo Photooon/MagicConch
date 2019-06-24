@@ -2,7 +2,7 @@
 
 #include "common.h"
 #include "User.h"
-#include "Structs.h"
+#include "MagicConch/Tools/Structs.h"
 #include "MagicConch/Tools/ParaKey.h"
 
 class Interpreter

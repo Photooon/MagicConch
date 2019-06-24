@@ -53,7 +53,6 @@ void File::load(map<int64_t, User*> &userlist, vector<Reply*> &replies, Interpre
 	
 	//读入Intepreter的关键词-功能对
 	string funcName;
-	int funcCmdNum;
 
 	haveRead = false;
 	filePath.assign(mainFileTree).append("\\").append(InterpreterFileName);
@@ -458,6 +457,7 @@ bool File::copy(string from, string to)
 		out << endl;
 		in.close();
 		out.close();
+		return true;
 	}
 	else
 	{

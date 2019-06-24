@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "common.h"
 #include "ToDo.h"
-#include "Structs.h"
 #include "Interpreter.h"
 #include "MagicConch/Tools/ParaKey.h"
 #include "MagicConch/Tools/Reply.h"
+#include "MagicConch/Tools/Structs.h"
 #include "MagicConch/Support Files/Macros.h"
 
 class File
