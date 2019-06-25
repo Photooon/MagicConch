@@ -48,14 +48,11 @@ private:
 	
 	map<int64_t, User*> userList;						//user_id到User的对应
 	vector<Reply*> replies;								//所有的回复
-
 	vector<int64_t> banGroupList;						//不回复的群聊
 
 	Interpreter interpreter;
 	File file;
 	WordManager wordManager;
-
-
 
 	/*私有函数*/
 	bool isCommand();									//判断消息是否是一条指令
@@ -66,6 +63,16 @@ private:
 
 	void pMessage(bool isPrivateMsg = true);			//process message，在pPMessage和pGMessage中被调用，用于处理消息
 	void callFunction();								//负责起调功能
+	void askMoreInfo();									//根据u中的缺失参数列表发出要求更多信息的消息
+	void funcFeedBack(int funcCmdNum, int success);		//功能调用之后的反馈回复
+	void chat();										//根据message和聊天库回复用户
+	bool print(int64_t id, string content);				//指定qq号地发送消息
+	bool print(string content);							//发送传入的content给最近的一个target
+	bool print(const int &number);						//发送传入的数字给最近的一个target
+	void printState(const string more = "");			//测试使用，输出MagicConch类的基本信息（已弃用）
+	void repeate();										//复读功能
+
+	/*功能函数*/
 	bool todoFunc(int funcCmdNum);
 	bool fishFunc(int funcCmdNum);
 	bool wordFunc(int funcCmdNum);
@@ -73,13 +80,4 @@ private:
 	bool repeatFunc(int funcCmdNum);
 	bool replyFunc(int funcCmdNum);
 	bool groupFunc(int funcCmdNum);
-
-	void askMoreInfo();									//根据u中的缺失参数列表发出要求更多信息的消息
-	void MagicConch::funcFeedBack(int funcCmdNum, int success);
-	void chat();										//根据message和聊天库回复用户
-	bool print(int64_t id, string content);				//指定qq号地发送消息
-	bool print(string content);							//发送传入的content给最近的一个target
-	bool print(const int &number);						//发送传入的数字给最近的一个target
-	void printState(const string more = "");			//测试使用，输出MagicConch类的基本信息（已弃用）
-	void repeate();										//复读功能
 };
