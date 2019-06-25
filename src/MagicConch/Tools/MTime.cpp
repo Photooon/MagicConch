@@ -1,5 +1,4 @@
-﻿#include <string>
-#include "MTime.h"
+﻿#include "MTime.h"
 
 MTime MTime::to_MTime(std::string &ntime)
 {
@@ -22,9 +21,17 @@ MTime MTime::to_MTime(std::string &ntime)
 	}
 	else
 	{
-		MTime time(2019, 6, 1);
+		MTime time(2019, 6, 1);							//如果失败了默认返回儿童节日期: )
 		return time;
 	}
+}
+
+MTime MTime::now()
+{
+	time_t n = time(0);
+	tm *localTime = localtime(&n);											//调用系统函数获取本地时间
+	MTime now(localTime->tm_year, localTime->tm_mon, localTime->tm_mday);
+	return now;
 }
 
 std::string MTime::getTimeString(char segment)
@@ -47,12 +54,12 @@ int MTime::remainingTime()
 	nt.tm_year = localTime->tm_year;
 	nt.tm_mon = localTime->tm_mon;
 	nt.tm_mday = localTime->tm_mday;
-	nt.tm_hour = 8;
+	nt.tm_hour = 8;										//此处若不设置会因为1970年和时区问题导致无法使用mktime
 	et.tm_year = this->year - 1900;
 	et.tm_mon = this->month - 1;
 	et.tm_mday = this->day;
 	et.tm_hour = 8;
-	return (int(mktime(&et)) - int(mktime(&nt))) / 24 / 3600;
+	return (int(mktime(&et)) - int(mktime(&nt))) / 24 / 3600;			//先转化为秒差，再转化为天差
 }
 
 bool MTime::operator==(MTime &b)

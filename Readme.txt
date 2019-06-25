@@ -1,0 +1,3 @@
+由我们编写的代码放在了my-awesome-app/src/MagicConch内
+src/cqsdk是sdk的内容文件，src/Dependencies是我们使用了的第三方开源库
+src/demo.cpp则是我们调用我们编写的类去和酷Q对接的cpp，相当于main.cpp
