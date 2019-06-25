@@ -18,7 +18,8 @@ public:
 	string getRandomReply();									//获取随机回复
 	const string getSaveString();								//获取用于保存的单元语句
 	void add(string nr);										//添加一个新的回复
-	bool del(string nr);										//删除某句回复，检测删除后是否已经无回复，若无则让外部函数删除这个回复块
+	bool del(string nr);										//删除某句回复，如果原来没有则返回false
+	bool isEmpty();												//回复语句是否已经没有了
 
 private:
 	vector<string> keywords;									//回复的触发关键词

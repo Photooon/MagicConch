@@ -66,11 +66,20 @@ private:
 
 	void pMessage(bool isPrivateMsg = true);			//process message，在pPMessage和pGMessage中被调用，用于处理消息
 	void callFunction();								//负责起调功能
+	bool todoFunc(int funcCmdNum);
+	bool fishFunc(int funcCmdNum);
+	bool wordFunc(int funcCmdNum);
+	bool fileFunc(int funcCmdNum);
+	bool repeatFunc(int funcCmdNum);
+	bool replyFunc(int funcCmdNum);
+	bool groupFunc(int funcCmdNum);
+
 	void askMoreInfo();									//根据u中的缺失参数列表发出要求更多信息的消息
+	void MagicConch::funcFeedBack(int funcCmdNum, int success);
 	void chat();										//根据message和聊天库回复用户
-	void print(int64_t id, string content);				//指定qq号地发送消息
-	void print(string content);							//发送传入的content给最近的一个target
-	void print(const int &number);						//发送传入的数字给最近的一个target
+	bool print(int64_t id, string content);				//指定qq号地发送消息
+	bool print(string content);							//发送传入的content给最近的一个target
+	bool print(const int &number);						//发送传入的数字给最近的一个target
 	void printState(const string more = "");			//测试使用，输出MagicConch类的基本信息（已弃用）
 	void repeate();										//复读功能
 };

@@ -21,10 +21,10 @@ public:
 	}
 
 	void clearRequirement();															//清楚缓存的调用功能信息
-	void addExpection(const int64_t &groupId, const string &s);							//添加用户期待内容
-	void deleteExpection(const int64_t &groupId, const string &s);						//删除用户期待内容
+	bool addExpection(const int64_t &groupId, const string &s);							//添加用户期待内容
+	bool deleteExpection(const int64_t &groupId, const string &s);						//删除用户期待内容
 	string getExpection();																//将期待内容转为格式字符串输出
-	void addPath(const string &path);													//添加习惯目录
+	bool addPath(const string &path);													//添加习惯目录
 	bool deletePath(const int &line);													//删除习惯目录
 	string getPath();																	//获取习惯目录
 
