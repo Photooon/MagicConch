@@ -81,3 +81,8 @@ bool Reply::del(string nr)
 
 	return replies.size();
 }
+
+bool Reply::isEmpty()
+{
+	return replies.empty();
+}

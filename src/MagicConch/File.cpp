@@ -441,20 +441,19 @@ void File::save(map<int64_t, User*> &userlist, vector<Reply*> &replies)
 	}
 }
 
-bool File::copy(string from, string to)
+bool File::fcopy(string from, string to)
 {
 	ifstream in;
 	ofstream out;
-	in.open(from);
-	out.open(to, ios::trunc);
+	char buffer[1];
+	in.open(from, ifstream::binary);
+	out.open(to, ofstream::binary);
 	if (in.is_open() && out.is_open())
 	{
-		char x;
-		while (in >> x)
+		while (in.read(buffer, sizeof(char)))
 		{
-			out << x;
+			out.write(buffer, sizeof(char));
 		}
-		out << endl;
 		in.close();
 		out.close();
 		return true;
@@ -480,9 +479,9 @@ bool File::fremove(string path)
 	}
 }
 
-bool File::move(string from, string to)
+bool File::fmove(string from, string to)
 {
-	if (copy(from, to) && fremove(from))
+	if (fcopy(from, to) && fremove(from))
 	{
 		return true;
 	}

@@ -1,9 +1,11 @@
 ﻿#include "MTime.h"
 
-MTime MTime::to_MTime(std::string &ntime)
+MTime MTime::to_MTime(std::string &ntime, bool flag)
 {
 	std::string snum[3];
 	int p = 0;
+
+
 
 	for (std::string::iterator iter = ntime.begin(); iter != ntime.end() && p < 3; iter++)
 	{
@@ -60,6 +62,124 @@ int MTime::remainingTime()
 	et.tm_mday = this->day;
 	et.tm_hour = 8;
 	return (int(mktime(&et)) - int(mktime(&nt))) / 24 / 3600;			//先转化为秒差，再转化为天差
+}
+
+void MTime::addMin(int min)
+{
+	if (min > 59)				//一次添加的分钟不超过一小时
+		min = 59;
+
+	minute += min;
+
+	if (minute >= 60)
+	{
+		hour++;
+		minute -= 60;
+	}
+
+	if (hour >= 24)
+	{
+		day++;
+		hour -= 24;
+	}
+
+	if (day > MTime::daysOfMon(year, month))
+	{
+		month++;
+		day = 1;
+	}
+
+	if (month > 12)
+	{
+		year++;
+		month = 1;
+	}
+}
+
+int MTime::daysOfMon(int year, int mon)
+{
+	bool isLeapYear = false;
+	int days;
+
+	if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)  //是闰年
+		isLeapYear = true;
+	else														//不是闰年
+		isLeapYear = false;
+
+	switch (mon)
+	{
+	case 1:
+		days = 31;
+		break;
+	case 2:
+		days = 28 + isLeapYear;
+		break;
+	case 3:
+		days = 31;
+		break;
+	case 4:
+		days = 30;
+		break;
+	case 5:
+		days = 31;
+		break;
+	case 6:
+		days = 30;
+		break;
+	case 7:
+		days = 31;
+		break;
+	case 8:
+		days = 31;
+		break;
+	case 9:
+		days = 30;
+		break;
+	case 10:
+		days = 31;
+		break;
+	case 11:
+		days = 30;
+		break;
+	case 12:
+		days = 31;
+		break;
+	default:
+		days = 0;
+		break;
+	}
+
+	return days;
+}
+
+int MTime::y()
+{
+	return year;
+}
+
+int MTime::mon()
+{
+	return month;
+}
+
+int MTime::d()
+{
+	return day;
+}
+
+int MTime::h()
+{
+	return hour;
+}
+
+int MTime::min()
+{
+	return minute;
+}
+
+int MTime::s()
+{
+	return second;
 }
 
 bool MTime::operator==(MTime &b)

@@ -8,12 +8,13 @@ void User::clearRequirement()
 	lossParas.clear();
 }
 
-void User::addExpection(const int64_t &group_id, const string &s)
+bool User::addExpection(const int64_t &group_id, const string &s)
 {
 	expection[group_id].push_back(s);
+	return true;
 }
 
-void User::deleteExpection(const int64_t &groupId, const string &s)
+bool User::deleteExpection(const int64_t &groupId, const string &s)
 {
 	if (expection.count(groupId))
 	{
@@ -22,6 +23,7 @@ void User::deleteExpection(const int64_t &groupId, const string &s)
 			if (*iter == s)
 			{
 				iter = (expection[groupId]).erase(iter);
+				return true;
 			}
 			else
 			{
@@ -29,6 +31,8 @@ void User::deleteExpection(const int64_t &groupId, const string &s)
 			}
 		}
 	}
+
+	return false;
 }
 
 string User::getExpection()
@@ -52,14 +56,16 @@ string User::getExpection()
 	return temp;
 }
 
-void User::addPath(const string &path)
+bool User::addPath(const string &path)
 {
 	pathList.push_back(path);
+	return true;
 }
 
 bool User::deletePath(const int &line)
 {
 	int count = 1;
+
 	for (auto iter = pathList.begin(); iter != pathList.end(); iter++)
 	{
 		if (count == line)
@@ -72,6 +78,8 @@ bool User::deletePath(const int &line)
 			count++;
 		}
 	}
+
+	return false;
 }
 
 string User::getPath()

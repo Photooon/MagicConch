@@ -1,6 +1,7 @@
 ﻿#include "MagicConch.h"
 #include "MagicConch/Tools/MTime.h"
 #include "MagicConch/Tools/Reply.h"
+#include "MagicConch/Support Files/FeedBack.h"
 
 void MagicConch::pMessage(bool isPrivateMsg)
 {
@@ -77,6 +78,12 @@ void MagicConch::pMessage(bool isPrivateMsg)
 	}
 }
 
+void MagicConch::multiTasks()
+{
+	thread t1(loop_checker, &reminder);
+	t1.detach();
+}
+
 void MagicConch::InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg)
 {
 	/*更新内容*/
@@ -86,7 +93,7 @@ void MagicConch::InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg)
 	message = msg.message.extract_plain_text();
 	target = msg.target;
 	userId = msg.user_id;
-	
+
 	/*处理消息*/
 	pMessage();
 }
@@ -128,7 +135,7 @@ void MagicConch::InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg)
 			}
 		}
 	}
-	
+
 }
 
 User* MagicConch::bookUser(const int64_t id)
@@ -136,185 +143,6 @@ User* MagicConch::bookUser(const int64_t id)
 	User *pu = new User(id, PATH + '\\' + to_string(id));
 	userList[id] = pu;
 	return pu;
-}
-
-void MagicConch::callFunction()
-{
-	string meaning;
-	Reply* nr;
-
-	//print(to_string(u->funcCmdNum));
-	switch (u->funcCmdNum)
-	{
-	case NULL:
-		u->clearRequirement();
-		print("好的呢");
-		break;
-	case TODO_ADD:
-		print("事件添加成功了哟");
-		u->todo.add(MTime::to_MTime(u->foundParas["Time"]), u->foundParas["Content"]);
-		break;
-	case TODO_SHOW:
-		print("你的DDL在这里哟");
-		print(u->todo.getList(u->showTodoEndTime));
-		break;
-	case TODO_DEL:
-		if (!(u->todo.del(stoi(u->foundParas["Line"]))))
-		{
-			print("给的行数不对，不帮你改呢o(´^｀)o");
-		}
-		else
-		{
-			print("事件删除成功了哟(*^▽^*)");
-		}
-		break;
-	case TODO_CHANGE_CONTENT:
-		if (!(u->todo.changeContent(stoi(u->foundParas["Line"]), u->foundParas["Content"])))
-		{
-			print("给的行数不对，不帮你改呢o(´^｀)o");
-		}
-		else
-		{
-			print("更改事件的内容成功了哟(*^▽^*)");
-		}
-		break;
-	case TODO_CHANGE_TIME:
-		if (!(u->todo.changeEndTime(stoi(u->foundParas["Line"]), MTime::to_MTime(u->foundParas["Time"]))))
-		{
-			print("给的行数不对，不帮你改呢o(´^｀)o");
-		}
-		else
-		{
-			print("更改事件的时间成功了哟(*^▽^*)");
-		}
-		break;
-	case ADD_FISH:
-		print("我帮你看住了哟，等钓到了我一定会马上告诉你的! ");
-		u->addExpection(stoi(u->foundParas["Group"]), u->foundParas["Content"]);
-		break;
-	case DELETE_FISH:
-		print("删除鱼儿成功了呢");
-		u->deleteExpection(stoi(u->foundParas["Group"]), u->foundParas["Content"]);
-		break;
-	case SHOW_FISH:
-		print("你的鱼儿在这里，快看看↓");
-		print(u->getExpection());
-		break;
-	case WORD_SEARCH:
-		meaning = wordManager.searchword(u->foundParas["Content"]);
-		print("这个单词的意思是: " + meaning);
-		wordManager.saveword(MTime::now(), u->foundParas["Content"], meaning);			//查询完之后的保存
-		wordManager.update();
-		break;
-	case WORD_SHOW:
-		print("今天你要背的单词有: ");
-		print(wordManager.returnword(u->wordNum));
-		wordManager.update();
-		break;
-	case FILE_PATH_ADD:
-		u->addPath(u->foundParas["Path"]);
-		print("习惯目录添加上去了呢");
-		break;
-	case FILE_PATH_DELETE:
-		if (!(u->deletePath(stoi(u->foundParas["Line"]))))
-		{
-			print("给的行数不对，不帮你改呢o(´^｀)o");
-		}
-		else
-		{
-			print("删除习惯目录成功了哟(*^▽^*)");
-		}
-		break;
-	case FILE_COPY:
-		if (file.copy(u->foundParas["From"], u->foundParas["To"]))
-		{
-			print("复制成功了哟(*^▽^*)");
-		}
-		else
-		{
-			print(file.testS);
-			print("复制失败了呢o(╥﹏╥)o");
-		}
-		break;
-	case FILE_REMOVE:
-		if (file.fremove(u->foundParas["File"]))
-		{
-			print("文件删除成功了哟(*^▽^*)");
-		}
-		else
-		{
-			print("文件删除失败了呢o(╥﹏╥)o");
-		}
-		break;
-	case FILE_MOVE:
-		if (file.move(u->foundParas["From"],u->foundParas["To"]))
-		{
-			print("移动成功了哟(*^▽^*)");
-		}
-		else
-		{
-			print("移动失败了呢o(╥﹏╥)o");
-		}
-		break;
-	case FILE_PATH_SHOW:
-		print("你的目录在这里哟");
-		print(u->getPath());
-		break;
-	case REPEAT_START:
-		u->isRepeater = true;
-		break;
-	case REPEAT_STOP:
-		u->isRepeater = false;
-		break;  
-	case REPLY_ADD:
-		//先看看原来的回复块里面有没有这个关键词，有的话把这条回复填入已有的回复块中
-		for each(auto reply in replies)
-		{
-			if (reply->haveKeyword(u->foundParas["Keyword"]))
-			{
-				reply->add(u->foundParas["Content"]);
-				print("海螺记住了哟");
-				return;					//此处仅用break没效果，所以用return
-			}
-		}
-		//如果已有的回复块中没有这个关键词，那么构建一个新的Reply
-		nr = new Reply(u->foundParas["Keyword"], u->foundParas["Content"]);
-		replies.push_back(nr);
-		print("海螺记住了哟");
-		break;
-	case REPLY_DEL:
-		for (auto reply = replies.begin(); reply != replies.end(); reply++)
-		{
-			if ((*reply)->haveKeyword(u->foundParas["Keyword"]))
-			{
-				if (!(*reply)->del(u->foundParas["Content"]))			//返回假表示该回复块已经没有回复语句，删除该回复块
-				{
-					replies.erase(reply);
-				}
-				print("好滴，我已经忘得干干净净了！");
-				return;
-			}
-		}
-		break;
-	case GROUP_BAN:
-		banGroupList.push_back(groupId);				//屏蔽当前群聊
-		print("小海螺知道了o(╥﹏╥)o");
-		break;
-	case GROUP_LIFT_BAN:
-		for (auto iter = banGroupList.begin(); iter != banGroupList.end(); iter++)
-		{
-			if (*iter == groupId)
-			{
-				banGroupList.erase(iter);
-				print("小海螺开心嘻嘻嘻(*^▽^*)");
-				return;
-			}
-		}
-		print("我一直在听着哟嘿嘿嘿(*^▽^*)");
-		break;
-	default:
-		break;
-	}
 }
 
 void MagicConch::askMoreInfo()
@@ -362,7 +190,7 @@ void MagicConch::pCommand()
 	int pos = message.find("#cmd:");
 	string temp;
 	pos += 5;
-	for (; pos < message.length() && message[pos] != '\n'; pos++)
+	for (; pos < int(message.length()) && message[pos] != '\n'; pos++)
 	{
 		temp.push_back(message[pos]);
 	}
@@ -371,22 +199,39 @@ void MagicConch::pCommand()
 	//pass
 }
 
-void MagicConch::print(string content)
+bool MagicConch::print(string content)
 {
 	cq::Message fmsg = content;
 	cq::message::send(target, fmsg);
+	if (content == "")
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
-void MagicConch::print(int64_t id, string content)
+bool MagicConch::print(int64_t id, string content)
 {
 	cq::Target t = cq::Target(id);
 	cq::Message fmsg = content;
 	cq::message::send(t, fmsg);
+
+	if (content == "")
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
-void MagicConch::print(const int &number)
+bool MagicConch::print(const int &number)
 {
-	print(to_string(number));
+	return print(to_string(number));
 }
 
 void MagicConch::printState(const string more)
@@ -417,4 +262,321 @@ void MagicConch::chat()
 void MagicConch::repeate()
 {
 	print(message);
+}
+
+
+/*功能调用方面的函数*/
+
+void MagicConch::callFunction()
+{
+	bool success = false;
+
+	//print(to_string(u->funcCmdNum));
+	switch (u->funcCmdNum / 10)
+	{
+	case CANCEL:
+		u->clearRequirement();
+		break;
+	case TODO:
+		success = todoFunc(u->funcCmdNum);
+		break;
+	case FISH:
+		success = fishFunc(u->funcCmdNum);
+		break;
+	case WORD:
+		success = wordFunc(u->funcCmdNum);
+		break;
+	case FILE:
+		success = fileFunc(u->funcCmdNum);
+		break;
+	case REPEAT:
+		success = repeatFunc(u->funcCmdNum);
+		break;
+	case REPLY:
+		success = replyFunc(u->funcCmdNum);
+		break;
+	case GROUP:
+		success = groupFunc(u->funcCmdNum);
+		break;
+	case REMIND:
+		success = remindFunc(u->funcCmdNum);
+	default:
+		break;
+	}
+
+	funcFeedBack(u->funcCmdNum, success);			//根据反馈表进行反馈回复
+}
+
+bool MagicConch::todoFunc(int funcCmdNum)
+{
+	bool success = false;
+
+	switch (funcCmdNum)
+	{
+	case TODO_ADD:
+		success = u->todo.add(MTime::to_MTime(u->foundParas["Time"]), u->foundParas["Content"]);
+		break;
+	case TODO_SHOW:
+		success = print(u->todo.getList(u->showTodoEndTime));
+		break;
+	case TODO_DEL:
+		success = u->todo.del(stoi(u->foundParas["Line"]));
+		break;
+	case TODO_CHANGE_CONTENT:
+		success = u->todo.changeContent(stoi(u->foundParas["Line"]), u->foundParas["Content"]);
+		break;
+	case TODO_CHANGE_TIME:
+		success = u->todo.changeEndTime(stoi(u->foundParas["Line"]), MTime::to_MTime(u->foundParas["Time"]));
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+bool MagicConch::fishFunc(int funcCmdNum)
+{
+	bool success = false;
+
+	switch (funcCmdNum)
+	{
+	case ADD_FISH:
+		success = u->addExpection(stoi(u->foundParas["Group"]), u->foundParas["Content"]);
+		break;
+	case DELETE_FISH:
+		success = u->deleteExpection(stoi(u->foundParas["Group"]), u->foundParas["Content"]);
+		break;
+	case SHOW_FISH:
+		success = print(u->getExpection());
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+bool MagicConch::wordFunc(int funcCmdNum)
+{
+	string* meaning, *reword;
+	bool success = false;
+
+	switch (funcCmdNum)
+	{
+	case WORD_SEARCH:
+		meaning = &wordManager.searchword(u->foundParas["Content"]);
+		if (*meaning != "")
+		{
+			wordManager.saveword(MTime::now(), u->foundParas["Content"], *meaning);			//查询完之后的保存
+			wordManager.update();
+			success = true;
+		}
+		else
+		{
+			success = false;
+		}
+		break;
+	case WORD_SHOW:
+		reword = &wordManager.returnword(u->wordNum);
+		if (*reword != "")
+		{
+			print(fb[funcCmdNum / 10][funcCmdNum % 10 - 1][1] + '\n' + *reword);
+			wordManager.update();
+			success = true;
+		}
+		else
+		{
+			success = false;
+		}
+		break;
+	case WORD_SEARCH_ETYMA:
+		if (u->foundParas["Content"] != "")
+		{
+			print("https://www.youdict.com/etym/s/" + u->foundParas["Content"]);		//返回词根查询结果网址
+			success = true;
+		}
+		else
+		{
+			success = false;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+bool MagicConch::fileFunc(int funcCmdNum)
+{
+	bool success = false;
+	string *pathStr;
+
+	switch (funcCmdNum)
+	{
+	case FILE_PATH_ADD:
+		success = u->addPath(u->foundParas["Path"]);
+		break;
+	case FILE_PATH_DELETE:
+		success = u->deletePath(stoi(u->foundParas["Line"]));
+		break;
+	case FILE_PATH_SHOW:
+		pathStr = &u->getPath();
+		if (*pathStr != "")
+		{
+			print(fb[funcCmdNum / 10][funcCmdNum % 10 - 1][1] + '\n' + *pathStr);
+			success = true;
+		}
+		else
+		{
+			success = false;
+		}
+		break;
+	case FILE_COPY:
+		success = file.fcopy(u->foundParas["From"], u->foundParas["To"]);
+		break;
+	case FILE_REMOVE:
+		success = file.fremove(u->foundParas["File"]);
+		break;
+	case FILE_MOVE:
+		success = file.fmove(u->foundParas["From"], u->foundParas["To"]);
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+bool MagicConch::repeatFunc(int funcCmdNum)
+{
+	bool success = false;
+
+	switch (funcCmdNum)
+	{
+	case REPEAT_START:
+		u->isRepeater = true;
+		success = true;
+		break;
+	case REPEAT_STOP:
+		u->isRepeater = false;
+		success = true;
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+bool MagicConch::replyFunc(int funcCmdNum)
+{
+	bool success = false;
+	Reply *nr;
+
+	switch (funcCmdNum)
+	{
+	case REPLY_ADD:
+		//先看看原来的回复块里面有没有这个关键词，有的话把这条回复填入已有的回复块中
+		for each(auto reply in replies)
+		{
+			if (reply->haveKeyword(u->foundParas["Keyword"]))
+			{
+				reply->add(u->foundParas["Content"]);
+				success = true;
+				break;
+			}
+		}
+		//如果已有的回复块中没有这个关键词，那么构建一个新的Reply
+		if (!success)
+		{
+			nr = new Reply(u->foundParas["Keyword"], u->foundParas["Content"]);
+			replies.push_back(nr);
+			success = true;
+		}
+		break;
+	case REPLY_DEL:
+		for (auto reply = replies.begin(); reply != replies.end(); reply++)
+		{
+			if ((*reply)->haveKeyword(u->foundParas["Keyword"]))
+			{
+				success = (*reply)->del(u->foundParas["Content"]);
+				if (success && (*reply)->isEmpty())					//删除之后检查是否为空，如果为空则把回复块删除
+				{
+					replies.erase(reply);
+				}
+				break;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+bool MagicConch::groupFunc(int funcCmdNum)
+{
+	bool success = false;
+
+	switch (funcCmdNum)
+	{
+	case GROUP_BAN:
+		banGroupList.push_back(groupId);
+		success = true;
+		break;
+	case GROUP_LIFT_BAN:
+		for (auto iter = banGroupList.begin(); iter != banGroupList.end(); iter++)
+		{
+			if (*iter == groupId)
+			{
+				banGroupList.erase(iter);
+				success = true;
+				break;
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+bool MagicConch::remindFunc(int funcCmdNum)
+{
+	bool success = false;
+
+	switch (funcCmdNum)
+	{
+	case REMIND_ADD:
+		success = reminder.addPush(u->foundParas["Time"], u->id, u->foundParas["Content"], u->foundParas["Count"], u->foundParas["Delay"]);
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
+void MagicConch::funcFeedBack(int funcCmdNum, int success)
+{
+	if (funcCmdNum == CANCEL)
+	{
+		print(fb[CANCEL][CANCEL][CANCEL]);
+	}
+	else if (funcCmdNum / 10 == WORD && !success)				//单词功能的成功语句在wordFunc中已经调用
+	{
+		print(fb[funcCmdNum / 10][funcCmdNum % 10 - 1][0]);
+	}
+	else if (funcCmdNum / 10 == REPEAT)				//复读功能不需要反馈
+	{
+		return;
+	}
+	else
+	{
+		print(fb[funcCmdNum / 10][funcCmdNum % 10 - 1][success]);
+	}
 }

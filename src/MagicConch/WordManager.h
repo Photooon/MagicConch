@@ -36,6 +36,6 @@ private:
 	vector<Word>list;													//所有的待背单词
 
 	void sortList();													//根据Word的stage对list进行排序
-	static bool WordManager::sortFunc(Word &w1, Word &w2);				//供vector使用的排序函数
+	static bool sortFunc(Word &w1, Word &w2);							//供vector使用的排序函数
 	//PCHAR WideStrToMultiByte(PWCHAR pwcharWideStr);
 };
