@@ -1,5 +1,7 @@
 ﻿#pragma warning(disable:4996)
 #include "cqsdk/cqsdk.h"
+#include <Windows.h>
+#include <thread>
 #include "MagicConch/MagicConch.h"
 
 namespace app = cq::app; // 插件本身的生命周期事件和管理
@@ -20,6 +22,8 @@ CQ_MAIN {
     app::on_enable = [] {
         // logging、api、dir 等命名空间下的函数只能在事件回调函数内部调用，而不能直接在 CQ_MAIN 中调用
         logging::debug(u8"启用", u8"插件已启动");
+		
+		myConch.multiTasks();
     };
 
     event::on_private_msg = [](const cq::PrivateMessageEvent &e) {

@@ -9,11 +9,13 @@ using namespace std;
 /*所有类的声明*/
 class Reply;
 class MTime;
+class PushBar;
 class ParaKey;
 
 class ToDo;
 class File;
 class User;
+class Reminder;
 class MagicConch;
 class Interpreter;
 class WordManager;

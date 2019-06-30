@@ -78,6 +78,12 @@ void MagicConch::pMessage(bool isPrivateMsg)
 	}
 }
 
+void MagicConch::multiTasks()
+{
+	thread t1(loop_checker, &reminder);
+	t1.detach();
+}
+
 void MagicConch::InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg)
 {
 	/*更新内容*/
@@ -139,6 +145,128 @@ User* MagicConch::bookUser(const int64_t id)
 	return pu;
 }
 
+void MagicConch::askMoreInfo()
+{
+	//print(to_string(u->funcCmdNum));
+	//根据user的缺失参数列表构造询问消息
+	cq::Message fmsg = std::to_string(string("我还有需要知道下面几件事就能帮你了呢(￣▽￣)~*\n"));
+	for (vector<string>::iterator iter = u->lossParas.begin(); iter != u->lossParas.end(); iter++)
+	{
+		if (iter != u->lossParas.begin())
+		{
+			fmsg += "和";
+		}
+		fmsg += *iter;
+	}
+	cq::message::send(target, fmsg);
+}
+
+bool MagicConch::isCommand()
+{
+	if (message.find("#cmd:") == string::npos)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool MagicConch::havePrivilege()
+{
+	if (u->id == ID_OF_MS || u->id == ID_OF_XX || u->id == ID_OF_LW)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void MagicConch::pCommand()
+{
+	int pos = message.find("#cmd:");
+	string temp;
+	pos += 5;
+	for (; pos < int(message.length()) && message[pos] != '\n'; pos++)
+	{
+		temp.push_back(message[pos]);
+	}
+
+	/*根据temp内容找出指令……*/
+	//pass
+}
+
+bool MagicConch::print(string content)
+{
+	cq::Message fmsg = content;
+	cq::message::send(target, fmsg);
+	if (content == "")
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool MagicConch::print(int64_t id, string content)
+{
+	cq::Target t = cq::Target(id);
+	cq::Message fmsg = content;
+	cq::message::send(t, fmsg);
+
+	if (content == "")
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool MagicConch::print(const int &number)
+{
+	return print(to_string(number));
+}
+
+void MagicConch::printState(const string more)
+{
+	cq::Message fmsg = std::to_string(string("神奇海螺：\n"));
+	fmsg += std::to_string(string("\nlastMessage："));
+	fmsg += std::to_string(lastMessage);
+	fmsg += std::to_string(string("\nnewMessage："));
+	fmsg += std::to_string(message);
+	fmsg += std::to_string(string("\nMore Information："));
+	cq::Message moreMsg = std::to_string(more);
+	fmsg += "\n";
+	fmsg += moreMsg;
+	cq::message::send(target, fmsg);
+}
+
+void MagicConch::chat()
+{
+	for each(auto reply in replies)
+	{
+		if (reply->isTriggerred(message))
+		{
+			print(reply->getRandomReply());
+		}
+	}
+}
+
+void MagicConch::repeate()
+{
+	print(message);
+}
+
+
+/*功能调用方面的函数*/
+
 void MagicConch::callFunction()
 {
 	bool success = false;
@@ -170,6 +298,8 @@ void MagicConch::callFunction()
 	case GROUP:
 		success = groupFunc(u->funcCmdNum);
 		break;
+	case REMIND:
+		success = remindFunc(u->funcCmdNum);
 	default:
 		break;
 	}
@@ -253,6 +383,17 @@ bool MagicConch::wordFunc(int funcCmdNum)
 		{
 			print(fb[funcCmdNum / 10][funcCmdNum % 10 - 1][1] + '\n' + *reword);
 			wordManager.update();
+			success = true;
+		}
+		else
+		{
+			success = false;
+		}
+		break;
+	case WORD_SEARCH_ETYMA:
+		if (u->foundParas["Content"] != "")
+		{
+			print("https://www.youdict.com/etym/s/" + u->foundParas["Content"]);		//返回词根查询结果网址
 			success = true;
 		}
 		else
@@ -404,6 +545,22 @@ bool MagicConch::groupFunc(int funcCmdNum)
 	return success;
 }
 
+bool MagicConch::remindFunc(int funcCmdNum)
+{
+	bool success = false;
+
+	switch (funcCmdNum)
+	{
+	case REMIND_ADD:
+		success = reminder.addPush(u->foundParas["Time"], u->id, u->foundParas["Content"], u->foundParas["Count"], u->foundParas["Delay"]);
+		break;
+	default:
+		break;
+	}
+
+	return success;
+}
+
 void MagicConch::funcFeedBack(int funcCmdNum, int success)
 {
 	if (funcCmdNum == CANCEL)
@@ -422,123 +579,4 @@ void MagicConch::funcFeedBack(int funcCmdNum, int success)
 	{
 		print(fb[funcCmdNum / 10][funcCmdNum % 10 - 1][success]);
 	}
-}
-
-void MagicConch::askMoreInfo()
-{
-	//print(to_string(u->funcCmdNum));
-	//根据user的缺失参数列表构造询问消息
-	cq::Message fmsg = std::to_string(string("我还有需要知道下面几件事就能帮你了呢(￣▽￣)~*\n"));
-	for (vector<string>::iterator iter = u->lossParas.begin(); iter != u->lossParas.end(); iter++)
-	{
-		if (iter != u->lossParas.begin())
-		{
-			fmsg += "和";
-		}
-		fmsg += *iter;
-	}
-	cq::message::send(target, fmsg);
-}
-
-bool MagicConch::isCommand()
-{
-	if (message.find("#cmd:") == string::npos)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-bool MagicConch::havePrivilege()
-{
-	if (u->id == ID_OF_MS || u->id == ID_OF_XX || u->id == ID_OF_LW)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void MagicConch::pCommand()
-{
-	int pos = message.find("#cmd:");
-	string temp;
-	pos += 5;
-	for (; pos < int(message.length()) && message[pos] != '\n'; pos++)
-	{
-		temp.push_back(message[pos]);
-	}
-
-	/*根据temp内容找出指令……*/
-	//pass
-}
-
-bool MagicConch::print(string content)
-{
-	cq::Message fmsg = content;
-	cq::message::send(target, fmsg);
-	if (content == "")
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-bool MagicConch::print(int64_t id, string content)
-{
-	cq::Target t = cq::Target(id);
-	cq::Message fmsg = content;
-	cq::message::send(t, fmsg);
-
-	if (content == "")
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-
-bool MagicConch::print(const int &number)
-{
-	return print(to_string(number));
-}
-
-void MagicConch::printState(const string more)
-{
-	cq::Message fmsg = std::to_string(string("神奇海螺：\n"));
-	fmsg += std::to_string(string("\nlastMessage："));
-	fmsg += std::to_string(lastMessage);
-	fmsg += std::to_string(string("\nnewMessage："));
-	fmsg += std::to_string(message);
-	fmsg += std::to_string(string("\nMore Information："));
-	cq::Message moreMsg = std::to_string(more);
-	fmsg += "\n";
-	fmsg += moreMsg;
-	cq::message::send(target, fmsg);
-}
-
-void MagicConch::chat()
-{
-	for each(auto reply in replies)
-	{
-		if (reply->isTriggerred(message))
-		{
-			print(reply->getRandomReply());
-		}
-	}
-}
-
-void MagicConch::repeate()
-{
-	print(message);
 }

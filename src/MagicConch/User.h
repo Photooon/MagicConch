@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "common.h"
 #include "ToDo.h"
+#include "Tools/PushBar.h"
 
 class User
 {
@@ -10,6 +11,7 @@ public:
 		isRepeater = false;
 		showTodoEndTime = false;
 		wordNum = 8;
+		delayTime = one_min;
 	}
 
 	User(const int64_t nId, const string path)
@@ -53,4 +55,5 @@ private:
 	bool isRepeater;											//是否复读
 	bool showTodoEndTime;										//展示todo的endTime，默认为否
 	int wordNum;												//一次记忆的单词数量
+	Delay delayTime;											//默认的提醒延长时间
 };

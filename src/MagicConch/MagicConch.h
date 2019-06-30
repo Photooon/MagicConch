@@ -4,6 +4,7 @@
 #include "User.h"
 #include "ToDo.h"
 #include "File.h"
+#include "Reminder.h"
 #include "Interpreter.h"
 #include "WordManager.h"
 #include "MagicConch/Support Files/Macros.h"
@@ -31,6 +32,7 @@ public:
 	}
 
 	/*处理事件函数*/
+	void multiTasks();													//在app启动时被调用，用于多任务（时钟等）处理
 	void InterfaceOfPrivateMsg(const cq::PrivateMessageEvent &msg);		//是cq::event::on_private_msg和MagicConch的接口
 	void InterfaceOfGroupMsg(const cq::GroupMessageEvent &msg);			//是cq::event::on_group_msg和MagicConch的接口
 
@@ -50,8 +52,9 @@ private:
 	vector<Reply*> replies;								//所有的回复
 	vector<int64_t> banGroupList;						//不回复的群聊
 
-	Interpreter interpreter;
 	File file;
+	Reminder reminder;
+	Interpreter interpreter;
 	WordManager wordManager;
 
 	/*私有函数*/
@@ -66,11 +69,12 @@ private:
 	void askMoreInfo();									//根据u中的缺失参数列表发出要求更多信息的消息
 	void funcFeedBack(int funcCmdNum, int success);		//功能调用之后的反馈回复
 	void chat();										//根据message和聊天库回复用户
+	void repeate();										//复读功能
+
 	bool print(int64_t id, string content);				//指定qq号地发送消息
 	bool print(string content);							//发送传入的content给最近的一个target
 	bool print(const int &number);						//发送传入的数字给最近的一个target
 	void printState(const string more = "");			//测试使用，输出MagicConch类的基本信息（已弃用）
-	void repeate();										//复读功能
 
 	/*功能函数*/
 	bool todoFunc(int funcCmdNum);
@@ -80,4 +84,5 @@ private:
 	bool repeatFunc(int funcCmdNum);
 	bool replyFunc(int funcCmdNum);
 	bool groupFunc(int funcCmdNum);
+	bool remindFunc(int funcCmdNum);
 };
