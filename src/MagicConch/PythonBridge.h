@@ -1,0 +1,7 @@
+
+
+class PythonBridge
+{
+	public:
+	private:
+}
