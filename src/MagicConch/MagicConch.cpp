@@ -147,7 +147,7 @@ User* MagicConch::bookUser(const int64_t id)
 
 void MagicConch::askMoreInfo()
 {
-	//print(to_string(u->funcCmdNum));
+	print(to_string(u->funcCmdNum));
 	//根据user的缺失参数列表构造询问消息
 	cq::Message fmsg = std::to_string(string("我还有需要知道下面几件事就能帮你了呢(￣▽￣)~*\n"));
 	for (vector<string>::iterator iter = u->lossParas.begin(); iter != u->lossParas.end(); iter++)
@@ -556,6 +556,7 @@ bool MagicConch::remindFunc(int funcCmdNum)
 		success = reminder.addPush(u->foundParas["Time"], u->id, u->foundParas["Content"]);
 		break;
 	case REMIND_DEL:
+		success = reminder.delPush(stoi(u->foundParas["Line"]));
 		break;
 	case REMIND_SHOW:
 		things = reminder.getStr();

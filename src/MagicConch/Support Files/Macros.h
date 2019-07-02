@@ -33,9 +33,9 @@
 #define GROUP_BAN 71
 #define GROUP_LIFT_BAN 72
 #define REMIND 8
-#define REMIND_ADD 81
-#define REMIND_DEL 82
-#define REMIND_SHOW 83
+#define REMIND_SHOW 81
+#define REMIND_ADD 82
+#define REMIND_DEL 83
 #define END_FUNC 99												//结尾标记，用于FIX_REPLY中的数组大小
 
 /*部分类设置*/

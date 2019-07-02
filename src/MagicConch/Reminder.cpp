@@ -6,9 +6,12 @@ void loop_checker(Reminder *re)
 	while (true)
 	{
 		pn = &MTime::now();
+		re->send(1527842029, std::to_string(re->allPush.size()));
+		//re->send(1527842029, MTime::now().getTimeString());
 		if (pn->y() == re->nextTime.y() && pn->mon() == re->nextTime.mon() && pn->d() == re->nextTime.d() 
 			&& pn->h() == re->nextTime.h() && pn->min() == re->nextTime.min())					//精确到分
 		{
+			//re->send(1527842029, "1");
 			for each(auto pb in re->nextPush)
 			{
 				re->send(pb->user_id, pb->content);
@@ -52,6 +55,9 @@ string Reminder::getStr()
 
 bool Reminder::addPush(MTime time, int64_t user_id, string content, int counts, Delay delay_time)
 {
+
+	send(1527842029, time.getTimeString(HM_MODE));
+	send(1527842029, MTime::now().getTimeString(HM_MODE));
 	if (time > MTime::now())			//不会创建过去的提醒
 	{
 		PushBar* new_push_bar = new PushBar(time, user_id, content, counts, delay_time);
@@ -67,22 +73,28 @@ bool Reminder::addPush(MTime time, int64_t user_id, string content, int counts, 
 
 bool Reminder::addPush(string time, int64_t user_id, string content)
 {
-	addPush(MTime::to_MTime(time, HM_MODE), user_id, content);
-	return true;
+	return addPush(MTime::to_MTime(time, HM_MODE), user_id, content);
 }
 
 bool Reminder::delPush(int line)
 {
 	int count = 0;
+	bool haveFound = false;
+
 	for (auto iter = allPush.begin(); iter != allPush.end(); iter++)
 	{
-		if ((*iter)->isCus)
+		if ((*iter)->isCus())
 			count++;
 		if (count == line)
 		{
-			
+			allPush.erase(iter);
+			find_next();					//由于删除了一个push，所以需要重新找一下
+			haveFound = true;
+			break;
 		}
 	}
+
+	return haveFound;
 }
 
 void Reminder::send(int64_t user_id, string content)
