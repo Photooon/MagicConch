@@ -8,8 +8,7 @@ void loop_checker(Reminder *re)
 		pn = &MTime::now();
 		re->send(1527842029, std::to_string(re->allPush.size()));
 		//re->send(1527842029, MTime::now().getTimeString());
-		if (pn->y() == re->nextTime.y() && pn->mon() == re->nextTime.mon() && pn->d() == re->nextTime.d() 
-			&& pn->h() == re->nextTime.h() && pn->min() == re->nextTime.min())					//精确到分
+		if (*pn == re->nextTime)	
 		{
 			//re->send(1527842029, "1");
 			for each(auto pb in re->nextPush)
