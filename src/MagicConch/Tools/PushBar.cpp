@@ -44,7 +44,17 @@ bool PushBar::pSort(PushBar *p1, PushBar *p2)
 		return false;
 }
 
-MTime& PushBar::time()
+bool PushBar::isCus()
+{
+	return isCustom;
+}
+
+MTime PushBar::time()
 {
 	return t;
+}
+
+string PushBar::thing()
+{
+	return content;
 }

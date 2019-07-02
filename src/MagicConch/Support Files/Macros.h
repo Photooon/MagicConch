@@ -16,7 +16,7 @@
 #define WORD_SEARCH 31
 #define WORD_SHOW 32
 #define WORD_SEARCH_ETYMA 33
-#define FILE 4
+#define MY_FILE 4
 #define FILE_PATH_ADD 41
 #define FILE_PATH_DELETE 42
 #define FILE_PATH_SHOW 43
@@ -35,12 +35,16 @@
 #define REMIND 8
 #define REMIND_ADD 81
 #define REMIND_DEL 82
+#define REMIND_SHOW 83
 #define END_FUNC 99												//结尾标记，用于FIX_REPLY中的数组大小
 
 /*部分类设置*/
 #define MAX_STAGE 2												//最大的复习次数-1
 #define MAX_PUSH_COUNT 15
 #define MAX_PUSH_DELAY 30
+
+#define YMD_MODE 1												//MTime搜索时间的模式：年月日
+#define HM_MODE 2												//时分
 
 /*文件位置设置*/
 #define PATH "F:\\MagicConch"

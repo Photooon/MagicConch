@@ -12,6 +12,7 @@ public:
 		showTodoEndTime = false;
 		wordNum = 8;
 		delayTime = one_min;
+		todoRemindTime = 3;
 	}
 
 	User(const int64_t nId, const string path)
@@ -19,6 +20,8 @@ public:
 		isRepeater = false;
 		showTodoEndTime = false;
 		wordNum = 8;
+		delayTime = one_min;
+		todoRemindTime = 3;
 		filePath = path;
 	}
 
@@ -56,4 +59,5 @@ private:
 	bool showTodoEndTime;										//展示todo的endTime，默认为否
 	int wordNum;												//一次记忆的单词数量
 	Delay delayTime;											//默认的提醒延长时间
+	int todoRemindTime;											//todo事项剩余几天时提醒一次
 };

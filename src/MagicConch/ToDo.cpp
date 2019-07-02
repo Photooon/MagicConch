@@ -13,7 +13,7 @@ bool ToDo::add(MTime time, string &thing)
 
 bool ToDo::del(const int &line)
 {
-	if (line > 0 && line < ToDoList.size())
+	if (line > 0 && line <= ToDoList.size())
 	{
 		vector<ToDoElem>::iterator iter = ToDoList.begin();
 		iter += (line - 1);

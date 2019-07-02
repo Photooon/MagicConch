@@ -37,7 +37,7 @@ std::wstring String2WString(const std::string& s)
 
 void WordManager::add(const string &w, const string &meaning, string &st, const int &stage)
 {
-	Word word = { w,meaning, MTime::to_MTime(st),stage };
+	Word word = { w,meaning, MTime::to_MTime(st, YMD_MODE),stage };
 	list.push_back(word);
 }
 

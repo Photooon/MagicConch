@@ -302,7 +302,7 @@ void File::load(map<int64_t, User*> &userlist, vector<Reply*> &replies, Interpre
 			{
 				rf.getline(line, 100);
 				extractValue(line, key, content);
-				pu->todo.add(MTime::to_MTime(label), content);
+				pu->todo.add(MTime::to_MTime(label, YMD_MODE), content);
 			}
 		}
 		rf.close();

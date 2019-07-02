@@ -286,7 +286,7 @@ void MagicConch::callFunction()
 	case WORD:
 		success = wordFunc(u->funcCmdNum);
 		break;
-	case FILE:
+	case MY_FILE:
 		success = fileFunc(u->funcCmdNum);
 		break;
 	case REPEAT:
@@ -314,7 +314,7 @@ bool MagicConch::todoFunc(int funcCmdNum)
 	switch (funcCmdNum)
 	{
 	case TODO_ADD:
-		success = u->todo.add(MTime::to_MTime(u->foundParas["Time"]), u->foundParas["Content"]);
+		success = u->todo.add(MTime::to_MTime(u->foundParas["Time"], YMD_MODE), u->foundParas["Content"]);
 		break;
 	case TODO_SHOW:
 		success = print(u->todo.getList(u->showTodoEndTime));
@@ -326,7 +326,7 @@ bool MagicConch::todoFunc(int funcCmdNum)
 		success = u->todo.changeContent(stoi(u->foundParas["Line"]), u->foundParas["Content"]);
 		break;
 	case TODO_CHANGE_TIME:
-		success = u->todo.changeEndTime(stoi(u->foundParas["Line"]), MTime::to_MTime(u->foundParas["Time"]));
+		success = u->todo.changeEndTime(stoi(u->foundParas["Line"]), MTime::to_MTime(u->foundParas["Time"], YMD_MODE));
 		break;
 	default:
 		break;
@@ -548,11 +548,26 @@ bool MagicConch::groupFunc(int funcCmdNum)
 bool MagicConch::remindFunc(int funcCmdNum)
 {
 	bool success = false;
+	string things;
 
 	switch (funcCmdNum)
 	{
 	case REMIND_ADD:
-		success = reminder.addPush(u->foundParas["Time"], u->id, u->foundParas["Content"], u->foundParas["Count"], u->foundParas["Delay"]);
+		success = reminder.addPush(u->foundParas["Time"], u->id, u->foundParas["Content"]);
+		break;
+	case REMIND_DEL:
+		break;
+	case REMIND_SHOW:
+		things = reminder.getStr();
+		if (things != "")
+		{
+			success = true;
+			print(things);
+		}
+		else
+		{
+			success = false;
+		}
 		break;
 	default:
 		break;
