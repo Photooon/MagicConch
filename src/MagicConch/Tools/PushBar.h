@@ -32,6 +32,7 @@ public:
 
 	bool isCus();											//返回isCustom
 	MTime time();											//返回时间
+	int64_t id();											//返回用户id
 	string thing();											//返回内容
 
 	friend void loop_checker(Reminder *re);

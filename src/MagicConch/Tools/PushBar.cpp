@@ -38,7 +38,7 @@ bool PushBar::refresh()
 
 bool PushBar::pSort(PushBar *p1, PushBar *p2)
 {
-	if (p1->t > p2->t)
+	if (p2->t > p1->t)
 		return true;
 	else
 		return false;
@@ -52,6 +52,11 @@ bool PushBar::isCus()
 MTime PushBar::time()
 {
 	return t;
+}
+
+int64_t PushBar::id()
+{
+	return user_id;
 }
 
 string PushBar::thing()

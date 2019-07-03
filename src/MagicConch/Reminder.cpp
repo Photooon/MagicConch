@@ -6,11 +6,13 @@ void loop_checker(Reminder *re)
 	while (true)
 	{
 		pn = &MTime::now();
-		re->send(1527842029, std::to_string(re->allPush.size()));
+		//re->send(1527842029, "All: " + std::to_string(re->allPush.size()));
+		//re->send(1527842029, "Next: " + std::to_string(re->nextPush.size()));
 		//re->send(1527842029, MTime::now().getTimeString());
 		if (*pn == re->nextTime)	
 		{
-			//re->send(1527842029, "1");
+			//re->send(1527842029, "准备输出nextPush");
+			
 			for each(auto pb in re->nextPush)
 			{
 				re->send(pb->user_id, pb->content);
@@ -30,20 +32,26 @@ void loop_checker(Reminder *re)
 			sort(re->allPush.begin(), re->allPush.end(), PushBar::pSort);
 			re->find_next();
 		}
-		Sleep(30000);						//30秒检测一次
+		Sleep(10000);						//30秒检测一次
 	}
 
 }
 
-string Reminder::getStr()
+string Reminder::getStr(int64_t user_id)
 {
 	string reStr;
+
+	if (allPush.size() != 0)
+	{
+		reStr.append("Time   Thing\n");
+	}
+
 	for (auto iter = allPush.begin(); iter != allPush.end(); iter++)
 	{
-		if ((*iter)->isCus())
+		if ((*iter)->isCus() && (*iter)->id() == user_id)
 		{
-			reStr.append((*iter)->time().getTimeString());
-			reStr += ' ';
+			reStr.append((*iter)->time().getTimeString(HM_MODE));
+			reStr += '   ';
 			reStr.append((*iter)->thing());
 			if(iter + 1 != allPush.end())
 				reStr += '\n';
@@ -52,16 +60,16 @@ string Reminder::getStr()
 	return reStr;
 }
 
-bool Reminder::addPush(MTime time, int64_t user_id, string content, int counts, Delay delay_time)
+bool Reminder::addPush(MTime time, int64_t user_id, string content, int counts /*=1*/, Delay delay_time /*=one_min*/)
 {
-
-	send(1527842029, time.getTimeString(HM_MODE));
-	send(1527842029, MTime::now().getTimeString(HM_MODE));
+	//send(1527842029, time.getTimeString(HM_MODE));
+	//send(1527842029, MTime::now().getTimeString(HM_MODE));
 	if (time > MTime::now())			//不会创建过去的提醒
 	{
-		PushBar* new_push_bar = new PushBar(time, user_id, content, counts, delay_time);
+		PushBar* new_push_bar = new PushBar(time, user_id, content, counts, delay_time, true);
 		allPush.push_back(new_push_bar);
 		sort(allPush.begin(), allPush.end(), PushBar::pSort);
+		find_next();				//确定下一个提醒时间
 		return true;
 	}
 	else
@@ -118,5 +126,8 @@ void Reminder::find_next()
 				break;
 		}
 	}
-	//为0时不处理
+	else
+	{
+		nextTime = MTime();					//给一个默认（儿童节）不会触发提醒的时间
+	}
 }

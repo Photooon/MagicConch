@@ -20,7 +20,7 @@ public:
 
 	bool delPush(int line);											//删除用户自定义的推送，按照行数（从1开始的行数）
 
-	string getStr();												//获取所有用户自定义的提醒
+	string getStr(int64_t user_id);									//获取用户自定义的提醒
 
 	friend void loop_checker(Reminder *re);
 

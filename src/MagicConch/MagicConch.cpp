@@ -175,7 +175,7 @@ bool MagicConch::isCommand()
 
 bool MagicConch::havePrivilege()
 {
-	if (u->id == ID_OF_MS || u->id == ID_OF_XX || u->id == ID_OF_LW)
+	if (u->id == MS || u->id == XX || u->id == LW)
 	{
 		return true;
 	}
@@ -559,7 +559,7 @@ bool MagicConch::remindFunc(int funcCmdNum)
 		success = reminder.delPush(stoi(u->foundParas["Line"]));
 		break;
 	case REMIND_SHOW:
-		things = reminder.getStr();
+		things = reminder.getStr(u->id);
 		if (things != "")
 		{
 			success = true;

@@ -50,6 +50,6 @@
 #define PATH "F:\\MagicConch"
 
 /*管理员账号设置*/
-#define ID_OF_MS 875275641
-#define ID_OF_XX 614976675
-#define ID_OF_LW 1527842029
+#define MS 875275641
+#define XX 614976675
+#define LW 1527842029

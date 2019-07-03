@@ -8,6 +8,7 @@ class User
 public:
 	User()
 	{
+		id = LW;
 		isRepeater = false;
 		showTodoEndTime = false;
 		wordNum = 8;
@@ -17,12 +18,13 @@ public:
 
 	User(const int64_t nId, const string path)
 	{
+		id = nId;
+		filePath = path;
 		isRepeater = false;
 		showTodoEndTime = false;
 		wordNum = 8;
 		delayTime = one_min;
 		todoRemindTime = 3;
-		filePath = path;
 	}
 
 	void clearRequirement();															//清楚缓存的调用功能信息
